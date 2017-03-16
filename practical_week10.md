@@ -76,14 +76,15 @@ grep KMT2B fordist_cleaned_exac_nonTCGA_z_pli_rec_null_data.txt | cut -f2,20
 grep BRPF1 fordist_cleaned_exac_nonTCGA_z_pli_rec_null_data.txt | cut -f2,20
 ```
 
-### Homework exercise: Use the GTEX RNA-seq expression data to find genes that show a tissue-specific expression profile, i.e. genes for which the expression in the tissue with the maximum RPKM value is at least 5 times the RPKM values in all other tissues.
+#### Homework exercise: Use the GTEX RNA-seq expression data to find genes that show a tissue-specific expression profile, i.e. genes for which the expression in the tissue with the maximum RPKM value is at least 5 times the RPKM values in all other tissues.
 
 
 
 ## 3. Phasing of heterozygous variants from sequence data.
-In the lecture, we discussed how sequence reads can be used to infer haplotypes. In this exercise, we will use
+In the lecture, we discussed how sequence reads can be used to infer haplotypes for human genomes. In this exercise, we will use aligned sequence data from a human genome (NA12878) generated using two different sequencing technologies to assemble haplotypes using a computational tool HapCUT (developed in our lab). 
 
-Copy number variants result in decreased or increased read depth in aligned sequence data. Detecting copy number variants from exome sequencing is challenging due to the high variability in read depth across exons even in the absence of CNVs.
+
+
 
 
 
