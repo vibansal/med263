@@ -1,4 +1,4 @@
-# MED 263: Searching for disease mutations using DNA sequence data and bioinformatics 
+## MED 263: Searching for disease mutations using DNA sequence data and bioinformatics 
 
 
 ## 1. Analysis of loss-of-function mutations
@@ -37,8 +37,7 @@ join -1 2 -2 1 1 2 | cut -d ' ' -f1,20 > genes.LoF.constraintscores
 
 What is the most constrained gene (high pLI score) ? Does this gene have a disease association in humans ?
 
-## Homework exercise: Calculate the number of missense mutations in Exon 51 of KMT2D (12:49416372-49416658) in the ExAc database. Calculate the per-base rate of missense mutations in Exon 51 using the length of the exon. Do the same analysis for Exon 48 (12:49419964-49421105). Is the rate of missense mutations in Exon 51 higher than Exon 48 ?
-
+#### Homework exercise: Calculate the number of missense mutations in Exon 51 of KMT2D (12:49416372-49416658) in the ExAc database. Calculate the per-base rate of missense mutations in Exon 51 using the length of the exon. Do the same analysis for Exon 48 (12:49419964-49421105). Is the rate of missense mutations in Exon 51 higher than Exon 48 ?
 
 
 ## 2. Prioritizing disease genes using gene expression data
