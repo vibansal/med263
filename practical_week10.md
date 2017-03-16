@@ -34,7 +34,7 @@ The two files needed for this analysis:
 * sample.LoFgenes
 
 ```Shell
-sort -k 2,2 fordist_cleaned_exac_nonTCGA_z_pli_rec_null_data.txt > allgenes.scores
+sort -k 2,2 DATA/fordist_cleaned_exac_nonTCGA_z_pli_rec_null_data.txt > allgenes.scores
 sort -k 1,1 sample.LoFgenes > sample.LoFgenes.sorted
 join -1 2 -2 1 allgenes.scores sample.LoFgenes.sorted | cut -d ' ' -f1,20 | sort -k 2,2g > sample.LoFgenes.scores
 ```
@@ -54,7 +54,7 @@ The first line of this file gives information about the tissues/cell-lines and e
 (i) Extract the gene expression values for KMT2D from the data. 
 
 ```Shell
-grep KMT2D GTEx_Analysis_v6p_RNA-seq_RNA-SeQCv1.1.8_gene_median_rpkm.gct
+grep KMT2D DATA/GTEx_Analysis_v6p_RNA-seq_RNA-SeQCv1.1.8_gene_median_rpkm.gct
 ```
 KMT2D is expressed at a high level across virtually all tissues which is consistent with the multi-organ phenotype associated with Kabuki syndrome. A visual plot of the RPKM values can be seen at http://gtexportal.org/home/gene/KMT2D 
 
@@ -62,7 +62,7 @@ KMT2D is expressed at a high level across virtually all tissues which is consist
 (ii) Compare the expression pattern for KMT2D to a tissue-specific gene such as INS which is expressed at a very high level in the pancreas (RPKM = 1289) and at very low levels in all other tissues: http://gtexportal.org/home/gene/INS 
 
 ```Shell
-cat GTEx_Analysis_v6p_RNA-seq_RNA-SeQCv1.1.8_gene_median_rpkm.gct | awk '{ if ($2 == "INS") print; }' 
+cat DATA/GTEx_Analysis_v6p_RNA-seq_RNA-SeQCv1.1.8_gene_median_rpkm.gct | awk '{ if ($2 == "INS") print; }' 
 ```
 
 (iii) MLL2/KMT2D is the primary gene that is mutated in Kabuki syndrome (discussed in lecture). KDM6A is another gene that has been implicated in Kabuki syndrome. This suggests that the genes should have a similar expression profile. We will calculate the correlation between the expression profiles of KMT2D and KDM6A using the scipy.stats.spearmanr function:
@@ -84,8 +84,8 @@ python corr.py KMT2D all > KMT2D.highcorrgenes
 
 ```Shell
 sort -k 3,3g KMT2D.highcorrgenes | tail -n 5
-grep KMT2B fordist_cleaned_exac_nonTCGA_z_pli_rec_null_data.txt | cut -f2,20
-grep BRPF1 fordist_cleaned_exac_nonTCGA_z_pli_rec_null_data.txt | cut -f2,20
+grep KMT2B DATA/fordist_cleaned_exac_nonTCGA_z_pli_rec_null_data.txt | cut -f2,20
+grep BRPF1 DATA/fordist_cleaned_exac_nonTCGA_z_pli_rec_null_data.txt | cut -f2,20
 ```
 
 All these genes correspond to epigenetic regulators or histone-modifying proteins and have been linked to rare childhood diseases. 
@@ -103,8 +103,8 @@ Input files are (BAM file and VCF file for each platform in the region chr6:117,
 (i) First, we will assemble haplotypes using the Illumina sequence data: 
 
 ```Shell
-~/hapcut/extractHAIRS --bam na12878.illumina.bam --VCF na12878.illumina.vcf > na12878.illumina.fragments
-~/hapcut/HAPCUT --fragments na12878.illumina.fragments --VCF na12878.illumina.vcf --out na12878.illumina.haplotypes --maxiter 20 > na12878.illumina.log 
+~/hapcut/extractHAIRS --bam DATA/na12878.illumina.bam --VCF DATA/na12878.illumina.vcf > na12878.illumina.fragments
+~/hapcut/HAPCUT --fragments na12878.illumina.fragments --VCF DATA/na12878.illumina.vcf --out na12878.illumina.haplotypes --maxiter 20 > na12878.illumina.log 
 ```
 The output file 'na12878.illumina.haplotypes' is a text file with information about variants that could be phased together into haplotype blocks. For each variant, the 2nd and 3rd columns indicate whether the '0' allele (reference) or '1' allele (variant) is on the first (or second) haplotype. 
 
@@ -118,8 +118,8 @@ From the output, we can see that there are 21 haplotype blocks. The input VCF fi
 (ii) We will repeat the same process to assemble haplotypes using the Pacific Biosciences SMRT long-read data: 
 
 ```Shell
-~/hapcut/extractHAIRS --bam na12878.pacbio.bam --VCF na12878.pacbio.vcf > na12878.pacbio.fragments
-~/hapcut/HAPCUT --fragments na12878.pacbio.fragments --VCF na12878.pacbio.vcf --out na12878.pacbio.haplotypes --maxiter 20 > na12878.pacbio.log
+~/hapcut/extractHAIRS --bam DATA/na12878.pacbio.bam --VCF DATA/na12878.pacbio.vcf > na12878.pacbio.fragments
+~/hapcut/HAPCUT --fragments na12878.pacbio.fragments --VCF DATA/na12878.pacbio.vcf --out na12878.pacbio.haplotypes --maxiter 20 > na12878.pacbio.log
 grep BLOCK na12878.pacbio.haplotypes  | awk '{ b++; len += $9; } END { print "blocks:",b,"mean-length",len/b; }'
 ```
 
@@ -128,9 +128,7 @@ From the output, we observe that the all the 103 heterozygous variants were asse
 (iii) We can visualize the aligned reads for the two technologies using the IGV tool. 
 
 ```Shell
-samtools index na12878.pacbio.bam;
-samtools index na12878.illumina.bam; 
-java -jar ~/IGV_2.3.89/igv.jar  na12878.illumina.bam chr6:117,198,376-117,253,326 
+java -jar ~/IGV_2.3.89/igv.jar  DATA/na12878.illumina.bam chr6:117,198,376-117,253,326 
 ```
 
 In the IGV view, we can load the na12878.pacbio.bam file and change the view to 'squished'. If we zoom in to a small region, we can see that the same variants are identified using both sequence technologies. Visualizing aligned reads using the IGV tool is useful for visually validating variants as well as comparing datasets. 
