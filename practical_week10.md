@@ -21,7 +21,7 @@ grep "frameshift_variant" KMT2D.ExAc.vcf | grep PASS | wc -l
 
 What is the total number of LoF variant sites in the KMT2D gene ? Does the number of LoF variants match up with the ExAc website: http://exac.broadinstitute.org/gene/ENSG00000167548 (select LoF box). What is the total number of LoF mutations if we do not use the 'PASS' variant filter ? 
 
-(iii) Notice that some of the LoF sites are multi-allelic, i.e. the same base has multiple variant alleles. This information is represented in the VCF file on a single line but makes it difficult to parse it. We will use the python script "count_lof.py" to calculate the combined frequency of LoF variants in this gene.
+(iii) Notice that some of the LoF sites are multi-allelic, i.e. the same base has multiple variant alleles. This information is represented in the VCF file on a single line but makes it difficult to parse it. Therefore, we will use the python script "count_lof.py" to calculate the combined frequency of LoF variants in this gene.
 
 ```Shell
 python count_lof.py KMT2D.ExAc.vcf
@@ -39,6 +39,13 @@ sort -k 1,1 sample.LoFgenes > sample.LoFgenes.sorted
 join -1 2 -2 1 allgenes.scores sample.LoFgenes.sorted | cut -d ' ' -f1,20 | sort -k 2,2g > sample.LoFgenes.scores
 ```
 The sample.LoFgenes.scores should have the list of genes with a LoF mutation in the individual and the corresponding LoF constraint score (pLI). What is the most constrained gene in the list (high pLI score) ? Does this gene have a disease association in humans (https://www.omim.org/entry/603732) ?
+
+(v) We will use the list of genes with pLI scores to find the rank of the KMT2D (MLL2) gene. 
+
+```Shell
+cat allgenes.scores | sort -k 20,20gr | awk '{ a += 1; if ($2 == "KMT2D") print a,$0; }'
+```
+You can also load this file into excel and sort by column 20 (pLI score) to find the rank. Notice that three lysine methyltransferase genes (KMT2D, KMT2A, KMT2C) are among the top 20 most constrained genes in the human genome. 
 
 
 
