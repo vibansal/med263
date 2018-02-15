@@ -103,6 +103,11 @@ These genes correspond to epigenetic regulators or histone-modifying proteins an
 ## 3. Phasing of heterozygous variants from sequence data.
 In the lecture, we discussed how sequence reads can be used to infer haplotypes for human genomes. In this exercise, we will use aligned sequence data from a human genome (NA12878) generated using two different sequencing technologies to assemble haplotypes using a computational tool, HapCUT. 
 
+```Shell
+git clone https://github.com/vibansal/hapcut.git
+cd hapcut; make all; cd - 
+```
+
 Input files are (BAM file and VCF file for each platform in the region chr6:117,198,376-117,253,326): 
 * na12878.illumina.bam 
 * na12878.illumina.vcf
