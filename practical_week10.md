@@ -1,4 +1,4 @@
-## MED 263, week 10: Searching for disease mutations using DNA sequence data and bioinformatics 
+## MED 263: Searching for disease mutations using DNA sequence data and bioinformatics 
 
 
 ## 1. Analysis of loss-of-function mutations
