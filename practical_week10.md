@@ -89,15 +89,15 @@ The correlation between the expression values of the two genes is high. This is 
 python corr.py KMT2D all > KMT2D.highcorrgenes
 ```
 
-(v) Sort the list by the correlation coefficient value to find the top three genes whose expression is highly correlated with the expression profile of KMT2D. Use the constrained LoF scores data to determine if these genes are also constrained against LoF mutations.
+(v) We can sort the list of genes by the correlation coefficient value to find the top three genes whose expression is highly correlated with the expression profile of KMT2D. Using the constrained LoF scores data, we will determine if these genes are also constrained against LoF mutations.
 
 ```Shell
-sort -k 3,3g KMT2D.highcorrgenes | tail -n 5
+sort -k 3,3gr KMT2D.highcorrgenes | head
 grep KMT2B DATA/fordist_cleaned_exac_nonTCGA_z_pli_rec_null_data.txt | cut -f2,20
 grep BRPF1 DATA/fordist_cleaned_exac_nonTCGA_z_pli_rec_null_data.txt | cut -f2,20
 ```
 
-All these genes correspond to epigenetic regulators or histone-modifying proteins and have been linked to rare childhood diseases. 
+These genes correspond to epigenetic regulators or histone-modifying proteins and have been linked to rare childhood diseases: [KMT2B](https://www.omim.org/entry/617284) and [BRPF1](https://www.omim.org/entry/617333)
 
 
 ## 3. Phasing of heterozygous variants from sequence data.
