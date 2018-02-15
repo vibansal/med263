@@ -147,9 +147,9 @@ In the IGV view, we can load the na12878.pacbio.bam file and change the view to 
 
 1. Modify the count_lof.py script to calculate the number of missense mutations in Exon 51 of KMT2D (12:49416372-49416658) in the ExAc database. Alternatively, use data from the ExAc website for the KMT2D gene to do this calculation. Calculate the per-base rate of missense mutations in Exon 51 using the length of the exon. Do the same analysis for Exon 48 (12:49419964-49421105). Is the rate of missense mutations in Exon 51 higher than Exon 48 ? 
 
-2. Use the GTEX RNA-seq expression data to find genes that show a tissue-specific expression profile, i.e. genes for which the expression in the tissue with the maximum RPKM value is at least 5 times the RPKM values in all other tissues. Report the top 5 genes that are primarily expressed in 'pancreas'. 
+2. Genes expressed primarily in a single tissue are likely to be important for the function of that organ/tissue and corresponding diseases that affect that tissue. Use the GTEX RNA-seq expression data to find genes that show a tissue-specific expression profile, i.e. genes for which the expression in the tissue with the maximum RPKM value is at least 5 times the RPKM values in all other tissues. Report the top 5 genes that are primarily expressed in 'pancreas'. 
 
-3. The number of haplotype blocks assembled from sequence data depends on the length of the sequence reads. Use the na12878.illumina.vcf variant file to estimate the number of haplotype blocks for different read lengths: 100, 250, 500, 1000, 2000, 3000 bp. Assume that sequence coverage is not a limitation. Does the number of haplotype blocks continue to decrease as read lengths are increased or does it reach a plateau ?
+3. We saw that the number of haplotype blocks assembled from sequence data depends on the length of the sequence reads. Use the na12878.illumina.vcf variant file to estimate the number of haplotype blocks for different read lengths: 100, 250, 500, 1000, 2000, 3000 bp. Assume that sequence coverage is not a limitation. Does the number of haplotype blocks continue to decrease as read lengths are increased or does it reach a plateau ?
 
 
 
