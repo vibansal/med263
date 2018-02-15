@@ -43,7 +43,7 @@ The sample.LoFgenes.scores should have the list of genes with a LoF mutation in 
 (v) We will use the list of genes with pLI scores to find the rank of the KMT2D (MLL2) gene. 
 
 ```Shell
-cat allgenes.scores | sort -k 20,20gr | awk '{ a += 1; if ($2 == "KMT2D") print a,$0; }'
+cat allgenes.scores | sort -k 20,20gr | awk '{ a += 1; if ($2 == "KMT2D") print $2,a; }'
 ```
 You can also load this file into excel and sort by column 20 (pLI score) to find the rank. Notice that three lysine methyltransferase genes (KMT2D, KMT2A, KMT2C) are among the top 20 most constrained genes in the human genome. 
 
