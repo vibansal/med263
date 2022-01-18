@@ -2,7 +2,7 @@
 
 
 ## 1. Analysis of loss-of-function mutations
-Loss-of-function (LoF) mutations in genes are expected to have a strong impact on gene function. In the lecture on Tuesday, we learned that LoF mutations in the MLL2 (also known as KMT2D) cause Kabuki syndrome, a severe pediatric disease. Therefore, LoF mutations in this gene should be depleted in normal individuals. In this exercise, we will estimate the frequency of LoF mutations in KMT2D in the ExAc database (65,000 individuals) using command line tools and python.
+Loss-of-function (LoF) mutations in genes are expected to have a strong impact on gene function. In the lecture, we learned that LoF mutations in the MLL2 (also known as KMT2D) cause Kabuki syndrome, a severe multi-system childhood disease. Therefore, LoF mutations in this gene should be depleted in normal individuals. In this exercise, we will estimate the frequency of LoF mutations in KMT2D in the ExAc database (65,000 individuals) using command line tools and python.
 
 (i) We will use the 'tabix' tool to download the portion of the ExAc VCF file that contains all mutations in the KMT2D gene. 'tabix' is a very useful command line tool that works with tabular data (VCF files, bed files) to extract the subset of lines that overlap a genomic interval (start and end of the KMT2D gene in this example).
 
@@ -19,34 +19,30 @@ grep "splice_donor" KMT2D.ExAc.vcf | grep PASS | wc -l
 grep "frameshift_variant" KMT2D.ExAc.vcf | grep PASS | wc -l
 ```
 
-What is the total number of LoF variant sites in the KMT2D gene ? Does the number of LoF variants match up with the ExAc website: http://exac.broadinstitute.org/gene/ENSG00000167548 (select LoF box). What is the total number of LoF mutations if we do not use the 'PASS' variant filter ? 
+What is the total number of LoF variant sites in the KMT2D gene?  
 
-(iii) Notice that some of the LoF sites are multi-allelic, i.e. the same base has multiple variant alleles. This information is represented in the VCF file on a single line but makes it difficult to parse it. Therefore, we will use the python script "count_lof.py" to calculate the combined frequency of LoF variants in this gene.
+(iii) Notice that some of the LoF sites are multi-allelic, i.e. the same position has multiple variant alleles. This information is represented in the VCF file on a single line but makes it difficult to parse it. Therefore, we will use the python script "count_lof.py" to calculate the combined frequency of LoF variants in this gene.
 
 ```Shell
-python count_lof.py KMT2D.ExAc.vcf
+python3 count_lof.py KMT2D.ExAc.vcf
 ```
 
-(iv) Next, we will use LoF constraint scores (pLI, column 20 in the file 'fordist_cleaned_exac_nonTCGA_z_pli_rec_null_data.txt') from the ExAc database to prioritize LoF mutations in an individual. The list of LoF mutations in an individual's exome has already been extracted from the VCF file.
-
-The two files needed for this analysis: 
-* fordist_cleaned_exac_nonTCGA_z_pli_rec_null_data.txt 
-* sample.LoFgenes
+(iv) The ExAc database provides "LoF" constraint scores (pLI score) for human genes based on the observed:expected frequency of LoF mutations in each gene. The constraint scores range from 0 (no constraint) to 1 (completely constraint). We will use the list of scores to find the rank of the KMT2D (MLL2) gene. The data file "fordist_cleaned_exac_nonTCGA_z_pli_rec_null_data.txt" contains the summary of the constraint scores. 
 
 ```Shell
-sort -k 2,2 DATA/fordist_cleaned_exac_nonTCGA_z_pli_rec_null_data.txt > allgenes.scores
+sort -k 2,2 fordist_cleaned_exac_nonTCGA_z_pli_rec_null_data.txt | cut -f 2,20 > allgenes.constraint.scores
+cat allgenes.constraint.scores | sort -k 2gr | awk '{ a += 1; if ($2 == "KMT2D") print $2,a; }'
+```
+You can also load this file into excel and sort to find the rank. Notice that three lysine methyltransferase genes (KMT2D, KMT2A, KMT2C) are among the top 20 most constrained genes in the human genome. 
+
+
+(v) Finally, we will use LoF constraint scores to prioritize LoF mutations in an individual. The list of LoF mutations in an individual's exome has already been extracted from the VCF file (sample.LoFgenes).
+
+```Shell
 sort -k 1,1 sample.LoFgenes > sample.LoFgenes.sorted
-join -1 2 -2 1 allgenes.scores sample.LoFgenes.sorted | cut -d ' ' -f1,20 | sort -k 2,2g > sample.LoFgenes.scores
+join allgenes.constraint.scores sample.LoFgenes.sorted | sort -k 2,2g > sample.LoFgenes.scores
 ```
-The sample.LoFgenes.scores should have the list of genes with a LoF mutation in the individual and the corresponding LoF constraint score (pLI). What is the most constrained gene in the list (high pLI score) ? Does this gene have a disease association in humans (https://www.omim.org/entry/603732) ?
-
-(v) We will use the list of genes with pLI scores to find the rank of the KMT2D (MLL2) gene. 
-
-```Shell
-cat allgenes.scores | sort -k 20,20gr | awk '{ a += 1; if ($2 == "KMT2D") print $2,a; }'
-```
-You can also load this file into excel and sort by column 20 (pLI score) to find the rank. Notice that three lysine methyltransferase genes (KMT2D, KMT2A, KMT2C) are among the top 20 most constrained genes in the human genome. 
-
+The sample.LoFgenes.scores should have the list of genes with a LoF mutation in the individual and the corresponding LoF constraint score (pLI). What is the most constrained gene in the list (high pLI score)? Does this gene have a disease association in humans (https://www.omim.org/entry/603732)?
 
 
 ## 2. Prioritizing disease genes using gene expression data (RNA-seq) 

@@ -1,4 +1,5 @@
-#1. samtools 
+
+#0 python3.6 or higher
 
 #2. bedtools
 
