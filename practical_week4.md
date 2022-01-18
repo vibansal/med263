@@ -24,7 +24,7 @@ What is the total number of LoF variant sites in the KMT2D gene?
 (iii) Notice that some of the LoF sites are multi-allelic, i.e. the same position has multiple variant alleles. This information is represented in the VCF file on a single line but makes it difficult to parse it. Therefore, we will use the python script "count_lof.py" to calculate the combined frequency of LoF variants in this gene.
 
 ```Shell
-python3 count_lof.py KMT2D.ExAc.vcf
+python3.6 count_lof.py KMT2D.ExAc.vcf
 ```
 
 (iv) The ExAc database provides "LoF" constraint scores (pLI score) for human genes based on the observed:expected frequency of LoF mutations in each gene. The constraint scores range from 0 (no constraint) to 1 (completely constraint). We will use the list of scores to find the rank of the KMT2D (MLL2) gene. The data file "fordist_cleaned_exac_nonTCGA_z_pli_rec_null_data.txt" contains the summary of the constraint scores. 
@@ -72,7 +72,7 @@ grep RFX6 DATA/GTEx_Analysis_v6p_RNA-seq_RNA-SeQCv1.1.8_gene_median_rpkm.gct
 (iii) MLL2/KMT2D is the primary gene that is mutated in Kabuki syndrome (discussed in lecture). KDM6A is another gene that has been implicated in Kabuki syndrome. This suggests that the genes should have a similar expression profile. We will calculate the correlation between the expression profiles of KMT2D and KDM6A using the scipy.stats.spearmanr function:
 
 ```Shell
-python corr.py KMT2D KDM6A
+python3.6 corr.py KMT2D KDM6A
 ```
 
 The correlation between the expression values of the two genes is high. This is also apparent from visual inspection of plots for the two genes: http://gtexportal.org/home/gene/KMT2D and http://gtexportal.org/home/gene/KDM6A 
@@ -81,7 +81,7 @@ The correlation between the expression values of the two genes is high. This is 
 (iv) Next, we will use correlation analysis to find genes that have a very similar (corr. coefficient > 0.9) expression profile to KMT2D.
 
 ```Shell
-python corr.py KMT2D all > KMT2D.highcorrgenes
+python3.6 corr.py KMT2D all > KMT2D.highcorrgenes
 ```
 
 (v) We can sort the list of genes by the correlation coefficient value to find the top three genes whose expression is highly correlated with the expression profile of KMT2D. Using the constrained LoF scores data, we will determine if these genes are also constrained against LoF mutations.
@@ -96,10 +96,16 @@ These genes correspond to epigenetic regulators or histone-modifying proteins an
 
 
 ## 3. Variant filtering in rare disease
-In the lecture, we talked about how DNA sequencing of multiple related individuals can be used to find the genetic cause of rare diseases that show familial 
-inheritance. This requires prioritizing variants based on a combination of (i) sharing by affected individuals, (ii) population allele frequency and (iii) impact on
+In the lecture, we talked about how DNA sequencing of related individuals can be used to find the genetic cause of rare diseases that affect individuals in
+a family. This requires prioritizing variants based on a combination of (i) sharing by affected individuals, (ii) population allele frequency and (iii) impact on
 gene function. In this exercise, we will use variants identified from exome sequencing of four individuals from a single family with a phenotype of early-onset
-glaucoma (eye disease). The four individuals correspond to the mother (affected, S1) and three children (two affected: S2 and S4; and one unaffected: S3). 
+glaucoma (eye disease) to search for the disease causing variants. 
+The four individuals correspond to:
+
+* the mother (affected), label S1
+* child 1 (affected), label S2 
+* child 2 (unaffected), label S3 
+* child 3 (affected), label S4
 
 The variants and genotypes for the individuals have been tabulated in the file "genotypes.coding.csv". Each variant has been annotated for its impact on genes
 and the allele frequency for each variant has also been added using data from the ExAc database. This file can be loaded into Excel or google spreadsheet. 
@@ -115,6 +121,10 @@ cat genotypes.coding.csv | awk '{FS="\t";} {if ($6 == "0/1" && $7 == "0/1" && $8
 
 1. Genes expressed primarily in a single tissue are likely to be important for the function of that organ/tissue and corresponding diseases that affect that tissue. 
 Use the GTEX RNA-seq expression data to find genes that show a tissue-specific expression profile, i.e. genes for which the expression in the tissue with the maximum RPKM value is at least 5 times the RPKM values in all other tissues. Report the top 5 genes that are primarily expressed in 'pancreas'. 
+
+## 
+
+2. 
 
 
 
