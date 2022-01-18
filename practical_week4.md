@@ -47,21 +47,20 @@ The sample.LoFgenes.scores should have the list of genes with a LoF mutation in 
 
 ## 2. Prioritizing disease genes using gene expression data (RNA-seq) 
 
-Gene expression information can be used to prioritize genes for association with disease. The GTEx project (http://gtexportal.org/home/) has generated RNA-seq data on more than 50 different tissues and cell-lines on > 50 individuals. Summary data (RPKM values per gene for each tissue) is available for download from the GTEX website. We will use this data to analyze gene expression in disease-associated genes. 
+Gene expression information can be used to prioritize genes for association with disease. The GTEx project (http://gtexportal.org/home/) has generated RNA-seq data
+using more than 50 different tissues and cell-lines from hundreds of individuals. Summary data (RPKM values per gene for each tissue) is available for download from the GTEX website. We will use this data to analyze gene expression in disease-associated genes. 
 
-File with RPKM values for all ENSEMBL transcripts and 50+ tissues/cell lines in a table format. 
+File with RPKM values for all ENSEMBL transcripts and 50+ tissues/cell lines in a table format: 
 * GTEx_Analysis_v6p_RNA-seq_RNA-SeQCv1.1.8_gene_median_rpkm.gct
 
 The first line of this file gives information about the tissues/cell-lines and each subsequent line has the expression information for an individual transcript. This file can easily be loaded into excel as well. 
 
-(i) Extract the gene expression values for KMT2D from the data. 
+(i) Extract the gene expression values for KMT2D from the data:
 
 ```Shell
 grep KMT2D DATA/GTEx_Analysis_v6p_RNA-seq_RNA-SeQCv1.1.8_gene_median_rpkm.gct
 ```
 KMT2D is expressed at a high level across virtually all tissues which is consistent with the multi-organ phenotype associated with Kabuki syndrome. A visual plot of the RPKM values can be seen at http://gtexportal.org/home/gene/KMT2D or [here](DATA/kmt2d_exp.png)
-
-
 
 
 (ii) Compare the expression pattern for KMT2D to a gene RFX6 (discussed in Tuesday's lecture) which is expressed in a few tissues (stomach, pancreas, adrenal glands): http://gtexportal.org/home/gene/RFX6 or [here](DATA/RFX6-expression.png)
@@ -96,61 +95,26 @@ grep BRPF1 DATA/fordist_cleaned_exac_nonTCGA_z_pli_rec_null_data.txt | cut -f2,2
 These genes correspond to epigenetic regulators or histone-modifying proteins and have been linked to rare childhood diseases: [KMT2B](https://www.omim.org/entry/617284) and [BRPF1](https://www.omim.org/entry/617333)
 
 
-## 3. Phasing of heterozygous variants from sequence data.
-In the lecture, we discussed how sequence reads can be used to infer haplotypes for human genomes. In this exercise, we will use aligned sequence data from a human genome (NA12878) generated using two different sequencing technologies to assemble haplotypes using a computational tool, HapCUT. 
+## 3. Variant filtering in rare disease
+In the lecture, we talked about how DNA sequencing of multiple related individuals can be used to find the genetic cause of rare diseases that show familial 
+inheritance. This requires prioritizing variants based on a combination of (i) sharing by affected individuals, (ii) population allele frequency and (iii) impact on
+gene function. In this exercise, we will use variants identified from exome sequencing of four individuals from a single family with a phenotype of early-onset
+glaucoma (eye disease). The four individuals correspond to the mother (affected, S1) and three children (two affected: S2 and S4; and one unaffected: S3). 
+
+The variants and genotypes for the individuals have been tabulated in the file "genotypes.coding.csv". Each variant has been annotated for its impact on genes
+and the allele frequency for each variant has also been added using data from the ExAc database. This file can be loaded into Excel or google spreadsheet. 
+We can filter out variants that do not affect the protein sequence (synonymous SNV), have high population frequency and are not shared by all affected individuals. 
+Using awk, the following bash command can be used for this purpose:
 
 ```Shell
-git clone https://github.com/vibansal/hapcut.git
-cd hapcut; make all; cd - 
+cat genotypes.coding.csv | awk '{FS="\t";} {if ($6 == "0/1" && $7 == "0/1" && $8 == "0/0" && $9 == "0/1" && $12 != "synonymous SNV" && $13 < 0.001) print; }' > candidates.csv
 ```
-
-Input files are (BAM file and VCF file for each platform in the region chr6:117,198,376-117,253,326): 
-* na12878.illumina.bam 
-* na12878.illumina.vcf
-* na12878.pacbio.bam 
-* na12878.pacbio.vcf (same as na12878.illumina.vcf except for chromosome names)
-
-(i) First, we will assemble haplotypes using the Illumina sequence data: 
-
-```Shell
-~/hapcut/extractHAIRS --bam DATA/na12878.illumina.bam --VCF DATA/na12878.illumina.vcf > na12878.illumina.fragments
-~/hapcut/HAPCUT --fragments na12878.illumina.fragments --VCF DATA/na12878.illumina.vcf --out na12878.illumina.haplotypes --maxiter 20 > na12878.illumina.log 
-```
-The output file 'na12878.illumina.haplotypes' is a text file with information about variants that could be phased together into haplotype blocks. For each variant, the 2nd and 3rd columns indicate whether the '0' allele (reference) or '1' allele (variant) is on the first (or second) haplotype. 
-
-Next, we will get statistics on the number of haplotype blocks in this file and the average length of each haplotype block: 
-
-```Shell
-grep BLOCK na12878.illumina.haplotypes  | awk '{ b++; len += $9; } END { print "blocks:",b,"mean-length",len/b; }'
-```
-From the output, we can see that there are 21 haplotype blocks. The input VCF file has 111 variants (103 of which are heterozygous). 
-
-(ii) We will repeat the same process to assemble haplotypes using the Pacific Biosciences SMRT long-read data: 
-
-```Shell
-~/hapcut/extractHAIRS --bam DATA/na12878.pacbio.bam --VCF DATA/na12878.pacbio.vcf > na12878.pacbio.fragments
-~/hapcut/HAPCUT --fragments na12878.pacbio.fragments --VCF DATA/na12878.pacbio.vcf --out na12878.pacbio.haplotypes --maxiter 20 > na12878.pacbio.log
-grep BLOCK na12878.pacbio.haplotypes  | awk '{ b++; len += $9; } END { print "blocks:",b,"mean-length",len/b; }'
-```
-
-From the output, we observe that the all the 103 heterozygous variants were assembled into a single haplotype block. This is due to the long read lengths of the PacBio reads (5-20 kb) compared to Illumina reads (100 bp reads, 300-500 bp fragments). 
-
-(iii) We can visualize the aligned reads for the two technologies using the IGV tool. 
-
-```Shell
-java -jar ~/IGV_2.3.89/igv.jar  DATA/na12878.illumina.bam chr6:117,198,376-117,253,326 
-```
-
-In the IGV view, we can load the na12878.pacbio.bam file and change the view to 'squished'. If we zoom in to a small region, we can see that the same variants are identified using both sequence technologies. Visualizing aligned reads using the IGV tool is useful for visually validating variants as well as comparing datasets. 
 
 
 ## Homework exercises
 
-1. Modify the count_lof.py script to calculate the number of missense mutations in Exon 51 of KMT2D (12:49416372-49416658) in the ExAc database. Alternatively, use data from the ExAc website for the KMT2D gene to do this calculation. Calculate the per-base rate of missense mutations in Exon 51 using the length of the exon. Do the same analysis for Exon 48 (12:49419964-49421105). Is the rate of missense mutations in Exon 51 higher than Exon 48 ? 
-
-2. Genes expressed primarily in a single tissue are likely to be important for the function of that organ/tissue and corresponding diseases that affect that tissue. Use the GTEX RNA-seq expression data to find genes that show a tissue-specific expression profile, i.e. genes for which the expression in the tissue with the maximum RPKM value is at least 5 times the RPKM values in all other tissues. Report the top 5 genes that are primarily expressed in 'pancreas'. 
-
-3. We saw that the number of haplotype blocks assembled from sequence data depends on the length of the sequence reads. Use the na12878.illumina.vcf variant file to estimate the number of haplotype blocks for different read lengths: 100, 250, 500, 1000, 2000, 3000 bp. Assume that sequence coverage is not a limitation. Does the number of haplotype blocks continue to decrease as read lengths are increased or does it reach a plateau ?
+1. Genes expressed primarily in a single tissue are likely to be important for the function of that organ/tissue and corresponding diseases that affect that tissue. 
+Use the GTEX RNA-seq expression data to find genes that show a tissue-specific expression profile, i.e. genes for which the expression in the tissue with the maximum RPKM value is at least 5 times the RPKM values in all other tissues. Report the top 5 genes that are primarily expressed in 'pancreas'. 
 
 
 
