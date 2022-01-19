@@ -45,7 +45,7 @@ join allgenes.constraint.scores sample.LoFgenes.sorted | sort -k 2,2g > sample.L
 The sample.LoFgenes.scores should have the list of genes with a LoF mutation in the individual and the corresponding LoF constraint score (pLI). What is the most constrained gene in the list (high pLI score)? Does this gene have a disease association in humans (https://www.omim.org/entry/603732)?
 
 
-## 2. Prioritizing disease genes using gene expression data (RNA-seq) 
+## 2. Prioritizing disease genes using gene expression data 
 
 Gene expression information can be used to prioritize genes for association with disease. The GTEx project (http://gtexportal.org/home/) has generated RNA-seq data
 using more than 50 different tissues and cell-lines from hundreds of individuals. Summary data (RPKM values per gene for each tissue) is available for download from the GTEX website. We will use this data to analyze gene expression in disease-associated genes. 
@@ -88,8 +88,8 @@ python3.6 corr.py KMT2D all > KMT2D.highcorrgenes
 
 ```Shell
 sort -k 3,3gr KMT2D.highcorrgenes | head
-grep KMT2B DATA/fordist_cleaned_exac_nonTCGA_z_pli_rec_null_data.txt | cut -f2,20
-grep BRPF1 DATA/fordist_cleaned_exac_nonTCGA_z_pli_rec_null_data.txt | cut -f2,20
+grep KMT2B allgenes.constraint.scores
+grep BRPF1 allgenes.constraint.scores
 ```
 
 These genes correspond to epigenetic regulators or histone-modifying proteins and have been linked to rare childhood diseases: [KMT2B](https://www.omim.org/entry/617284) and [BRPF1](https://www.omim.org/entry/617333)
@@ -122,10 +122,10 @@ Next, we will determine if any of the candidate genes are known to cause human d
 
 ```Shell
 cut -f11 candidates.csv | uniq > candidates.genes
-grep -f candidates.genes omim.genes.disease 
+grep -w -f candidates.genes omim.genes.disease 
 ```
 
-Is there a gene that is known to cause a eye-related phenotype?
+Is there a gene that is known to cause an eye-related phenotype?
 
 
 ## Homework exercises
