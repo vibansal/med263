@@ -60,10 +60,10 @@ The first line of this file gives information about the tissues/cell-lines and e
 ```Shell
 grep KMT2D DATA/GTEx_Analysis_v6p_RNA-seq_RNA-SeQCv1.1.8_gene_median_rpkm.gct
 ```
-KMT2D is expressed at a high level across virtually all tissues which is consistent with the multi-organ phenotype associated with Kabuki syndrome. A visual plot of the RPKM values can be seen at http://gtexportal.org/home/gene/KMT2D or [here](DATA/kmt2d_exp.png)
+KMT2D is expressed at a high level across virtually all tissues which is consistent with the multi-organ phenotype associated with Kabuki syndrome. A visual plot of the RPKM values can be seen at http://gtexportal.org/home/gene/KMT2D or [here](DATA/practical-2/kmt2d_exp.png)
 
 
-(ii) Compare the expression pattern for KMT2D to a gene RFX6 (discussed in Tuesday's lecture) which is expressed in a few tissues (stomach, pancreas, adrenal glands): http://gtexportal.org/home/gene/RFX6 or [here](DATA/RFX6-expression.png)
+(ii) Compare the expression pattern for KMT2D to a gene RFX6 (discussed in Tuesday's lecture) which is expressed in a few tissues (stomach, pancreas, adrenal glands): http://gtexportal.org/home/gene/RFX6 or [here](DATA/practical-2/RFX6-expression.png)
 
 ```Shell
 grep RFX6 DATA/GTEx_Analysis_v6p_RNA-seq_RNA-SeQCv1.1.8_gene_median_rpkm.gct 
@@ -99,32 +99,47 @@ These genes correspond to epigenetic regulators or histone-modifying proteins an
 In the lecture, we talked about how DNA sequencing of related individuals can be used to find the genetic cause of rare diseases that affect individuals in
 a family. This requires prioritizing variants based on a combination of (i) sharing by affected individuals, (ii) population allele frequency and (iii) impact on
 gene function. In this exercise, we will use variants identified from exome sequencing of four individuals from a single family with a phenotype of early-onset
-glaucoma (eye disease) to search for the disease causing variants. 
-The four individuals correspond to:
+glaucoma (eye disease) to search for the disease causing variants. The variants were called using the GATK HaplotypeCaller and annotated using the Annovar tool.
+The variants and genotypes have been summarized in a tabular format in the file "genotypes.coding.csv". 
+Each variant has been annotated for its impact on genes and the allele frequency for each variant has also been obtained using data from the ExAc database. 
+This file can be loaded into a spreadsheet as well. The four individuals correspond to:
 
-* the mother (affected), label S1
-* child 1 (affected), label S2 
-* child 2 (unaffected), label S3 
-* child 3 (affected), label S4
+* the mother (affected), label S1 and column 6 in the table
+* child 1 (affected), label S2  and column 7 in the table
+* child 2 (unaffected), label S3 and column 8 in the table
+* child 3 (affected), label S4 and column 9 in the table
 
-The variants and genotypes for the individuals have been tabulated in the file "genotypes.coding.csv". Each variant has been annotated for its impact on genes
-and the allele frequency for each variant has also been added using data from the ExAc database. This file can be loaded into Excel or google spreadsheet. 
-We can filter out variants that do not affect the protein sequence (synonymous SNV), have high population frequency and are not shared by all affected individuals. 
-Using awk, the following bash command can be used for this purpose:
+We want to search for variants that are shared by the three affected individuals (and not by the one unaffected individual), are rare in the population and also
+affect the protein sequence. We will use a population allele frequency threshold of 0.1% to filter out common variants. Using awk, the following bash command can be used to search for potential disease-causing variants:
 
 ```Shell
 cat genotypes.coding.csv | awk '{FS="\t";} {if ($6 == "0/1" && $7 == "0/1" && $8 == "0/0" && $9 == "0/1" && $12 != "synonymous SNV" && $13 < 0.001) print; }' > candidates.csv
 ```
 
+How many candidate variants are identified using the filter? How many distinct candidate genes are identified? 
+
+Next, we will determine if any of the candidate genes are known to cause human diseases. For this, we will use the OMIM (https://omim.org) database that contains information about human genes and phenotypes. The file "omim.genes.disease" contains human genes and the corresponding phenotypes associated with them. 
+
+```Shell
+cut -f11 candidates.csv | uniq > candidates.genes
+grep -f candidates.genes omim.genes.disease 
+```
+
+Is there a gene that is known to cause a eye-related phenotype?
+
 
 ## Homework exercises
 
-1. Genes expressed primarily in a single tissue are likely to be important for the function of that organ/tissue and corresponding diseases that affect that tissue. 
+1. Genes that are expressed primarily in a single tissue or cell-type are likely to be important for the function of that tissue and relevant for diseases that affect that specific tissue. 
 Use the GTEX RNA-seq expression data to find genes that show a tissue-specific expression profile, i.e. genes for which the expression in the tissue with the maximum RPKM value is at least 5 times the RPKM values in all other tissues. Report the top 5 genes that are primarily expressed in 'pancreas'. 
 
-## 
+---
 
-2. 
+2. It is known that certain genes are expressed at very low levels in a specific cell type despite being expressed universally across almost all other cell types. One example of such a cell type is pancreatic beta-cells that release insulin in response to glucose. The file "disallowed.genes" has a list of 20 genes that are known to be disallowed in pancreatic beta-cells. Use the GTEX RNA-seq expression data to compare the expression of these gene in pancreas with the expression in other tissues. For each gene, calculate the ratio of the expression level in pancreas to the mean expression level in all other cell-types. For how many genes is this ratio less than 0.1? Use the OMIM database to determine if mutations in any of these genes are known to cause a insulin secretion defect due to aberrant expression. 
+
+---
+
+3. For the third practical exercise ("Variant filtering"), we used the population allele frequencies from ExAc to filter out common variants. The input file contains allele frequencies for each variant in two population (European: column 13 and South Asian: column 14). Determine the number of candidate disease variants obtained by filtering using the allele frequency for each of the two population separately. Which population results in a lower number of candidate variants? What can we infer about the ancestry of the sequenced individuals from this? 
 
 
 
