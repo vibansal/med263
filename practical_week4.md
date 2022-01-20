@@ -10,39 +10,51 @@ Loss-of-function (LoF) mutations in genes are expected to have a strong impact o
 tabix -h ftp://ftp.broadinstitute.org/pub/ExAC_release/release0.3.1/ExAC.r0.3.1.sites.vep.vcf.gz 12:49412758-49453557  > KMT2D.ExAc.vcf
 ```
 
-(ii) Using simple grep commands, we can identify the number of LoF variant sites in this VCF file. LoF variants are of three types: stop_gain, splice_acceptor/splice_donor and frameshift.
+(ii) The VCF file stores information about the variant position, alleles and the impact of the variant on the coding or non-coding sequence
+of the gene. We will use a python script to convert the VCF file into a simplified tabular format that contains the variant annotation relative to the canonical transcript for the KMT2D gene. 
 
 ```Shell
-grep "stop_gain" KMT2D.ExAc.vcf | grep PASS | wc -l
-grep "splice_acceptor" KMT2D.ExAc.vcf | grep PASS | wc -l
-grep "splice_donor" KMT2D.ExAc.vcf | grep PASS | wc -l
-grep "frameshift_variant" KMT2D.ExAc.vcf | grep PASS | wc -l
+python3.6 convert_vcf_tabular.py  KMT2D.ExAc.vcf > KMT2D.ExAc.simplified.csv
 ```
 
-What is the total number of LoF variant sites in the KMT2D gene?  
+If you are familiar with python, 
+The csv file can be viewed in a text editor or loaded in a spreadsheet. 
 
-(iii) Notice that some of the LoF sites are multi-allelic, i.e. the same position has multiple variant alleles. This information is represented in the VCF file on a single line but makes it difficult to parse it. Therefore, we will use the python script "count_lof.py" to calculate the combined frequency of LoF variants in this gene.
+Using simple grep commands, we can count the number of LoF variant sites in this VCF file. LoF variants are of three types: stop_gain, splice_acceptor/splice_donor and frameshift.
 
 ```Shell
-python3.6 count_lof.py KMT2D.ExAc.vcf
+grep -E "stop_gained|splice_acceptor_variant|splice_donor_variant|frameshift" KMT2D.ExAc.simplified.csv | wc -l 
 ```
 
-(iv) The ExAc database provides "LoF" constraint scores (pLI score) for human genes based on the observed:expected frequency of LoF mutations in each gene. The constraint scores range from 0 (no constraint) to 1 (completely constraint). We will use the list of scores to find the rank of the KMT2D (MLL2) gene. The data file "fordist_cleaned_exac_nonTCGA_z_pli_rec_null_data.txt" contains the summary of the constraint scores. 
+What is the total number of LoF variant sites in the KMT2D gene in the ExAc database?  
+
+(iii) The ExAc database provides "LoF" constraint scores (pLI score) for human genes based on the observed and expected counts of LoF mutations in each gene. The constraint scores range from 0 (no constraint) to 1 (completely constrained). For the KMT2D gene, the observed:expected ratio is 10:126 which implies that the observed number of LoF variants is much less than expected. We will use the list of scores to find the rank of the KMT2D (MLL2) gene. The data file "fordist_cleaned_exac_nonTCGA_z_pli_rec_null_data.txt" contains the summary of the constraint scores. 
 
 ```Shell
 sort -k 2,2 fordist_cleaned_exac_nonTCGA_z_pli_rec_null_data.txt | cut -f 2,20 > allgenes.constraint.scores
 cat allgenes.constraint.scores | sort -k 2gr | awk '{ a += 1; if ($2 == "KMT2D") print $2,a; }'
 ```
-You can also load this file into excel and sort to find the rank. Notice that three lysine methyltransferase genes (KMT2D, KMT2A, KMT2C) are among the top 20 most constrained genes in the human genome. 
+You can also load this file into excel and sort to find the rank.
 
 
-(v) Finally, we will use LoF constraint scores to prioritize LoF mutations in an individual. The list of LoF mutations in an individual's exome has already been extracted from the VCF file (sample.LoFgenes).
+(iv) Missense variants in the KMT2D gene have also been identified in individuals with Kabuki syndrome. We will use the simplified variant file to count the number of missense and silent (synonymous) variants in the KMT2D gene: 
 
 ```Shell
-sort -k 1,1 sample.LoFgenes > sample.LoFgenes.sorted
-join allgenes.constraint.scores sample.LoFgenes.sorted | sort -k 2,2g > sample.LoFgenes.scores
+grep -E "missense_variant" KMT2D.ExAc.simplified.csv | wc -l 
+grep -E "synonymous_variant" KMT2D.ExAc.simplified.csv | wc -l 
 ```
-The sample.LoFgenes.scores should have the list of genes with a LoF mutation in the individual and the corresponding LoF constraint score (pLI). What is the most constrained gene in the list (high pLI score)? Does this gene have a disease association in humans (https://www.omim.org/entry/603732)?
+
+What is the ratio of the number of missense variants and the number of synonymous variants? Exon 38 has been observed to be enriched in disease-causing mutations in this gene. Therefore, we would expect to see a lower than expected number of missense variants in the normal population. To check this, we will calculate the number of missense and synonymous variants in Exon 38: 
+
+
+```Shell
+grep -E "missense_variant" KMT2D.ExAc.simplified.csv | grep -E "38/54" | wc -l 
+grep -E "synonymous_variant" KMT2D.ExAc.simplified.csv | grep -E "38/54" | wc -l 
+```
+
+Is the missense_variant:synonymous_variant ratio for Exon 38 smaller than that for the entire gene? 
+
+This type of analysis can be used to prioritize specific regions of genes that are depleted of missense variants in normal individuals and are likely to harbor disease-causing mutations. For more details, you can read this paper: https://www.biorxiv.org/content/10.1101/148353v1
 
 
 ## 2. Prioritizing disease genes using gene expression data 
