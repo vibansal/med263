@@ -113,7 +113,7 @@ a family. This requires prioritizing variants based on a combination of (i) shar
 gene function. In this exercise, we will use variants identified from exome sequencing of four individuals from a single family with a phenotype of early-onset
 glaucoma (eye disease) to search for the disease causing variants. The variants were called using the GATK HaplotypeCaller and annotated using the Annovar tool.
 The variants and genotypes have been summarized in a tabular format in the file "genotypes.coding.csv". 
-Each variant has been annotated for its impact on genes and the allele frequency for each variant has also been obtained using data from the ExAc database. 
+Each variant has been annotated for its impact on genes and the allele frequency for each variant has also been obtained using data from the ExAc database. The allele frequency information is provided for two populations: European (column 13) and South Asian (column 14).
 This file can be loaded into a spreadsheet as well. The four individuals correspond to:
 
 * the mother (affected), label S1 and column 6 in the table
@@ -125,7 +125,7 @@ We want to search for variants that are shared by the three affected individuals
 affect the protein sequence. We will use a population allele frequency threshold of 0.1% to filter out common variants. Using awk, the following bash command can be used to search for potential disease-causing variants:
 
 ```Shell
-cat genotypes.coding.csv | awk '{FS="\t";} {if ($6 == "0/1" && $7 == "0/1" && $8 == "0/0" && $9 == "0/1" && $12 != "synonymous SNV" && $13 < 0.001) print; }' > candidates.csv
+cat genotypes.coding.csv | awk '{FS="\t";} {if ($6 == "0/1" && $7 == "0/1" && $8 == "0/0" && $9 == "0/1" && $12 != "synonymous SNV" && $13 < 0.001 && $14 < 0.001) print; }' > candidates.csv
 ```
 
 How many candidate variants are identified using the filter? 
@@ -156,7 +156,7 @@ Use the GTEX RNA-seq expression data to find genes that show a tissue-specific e
 
 ---
 
-3. For the third practical exercise ("Variant filtering"), we used the population allele frequencies from ExAc to filter out common variants. The input file contains allele frequencies for each variant in two population (European: column 13 and South Asian: column 14). Determine the number of candidate disease variants obtained by filtering using the allele frequency for each of the two population separately. Which population results in a lower number of candidate variants? What can we infer about the ancestry of the sequenced individuals from this? 
+3. For the third practical exercise ("Variant filtering"), we used the population allele frequencies from ExAc to filter out common variants. The input file contains allele frequencies for each variant in two population (European: column 13 and South Asian: column 14). Determine the number of candidate disease variants obtained by filtering using the allele frequency for each of the two population separately (threshold of 0.001). Which population results in a lower number of candidate variants? What can we infer about the ancestry of the sequenced individuals from this? 
 
 
 
