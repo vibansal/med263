@@ -1,11 +1,11 @@
 ## MED 263: Searching for disease mutations using DNA sequence data and bioinformatics 
 
-We will be using Unix/Linux command line utilities such as 'grep', 'awk', 'sort', 'cat' in this practical. If you are not familiar with these, you can find some basic information at this webpage: https://rsh249.github.io/bioinformatics/unix_shell.html 
+We will be using Unix/Linux command line utilities such as 'grep', 'awk', 'sort', 'cut' and 'uniq' in this practical. If you are not familiar with these, you can find some basic information at this webpage: https://rsh249.github.io/bioinformatics/unix_shell.html 
 
-## 1. Analysis of loss-of-function mutations
-Loss-of-function (LoF) mutations in genes are expected to have a strong impact on gene function. In the lecture, we learned that LoF mutations in the MLL2 (also known as KMT2D) cause Kabuki syndrome, a severe multi-system childhood disease. Therefore, LoF mutations in this gene should be depleted in normal individuals. In this exercise, we will estimate the frequency of LoF mutations in KMT2D in the ExAc database (65,000 individuals) using command line tools and python.
+## 1. Prioritizing disease genes using population variant data
+Loss-of-function (LoF) mutations in genes are expected to have a strong impact on gene function. In the lecture, we learned that LoF mutations in the MLL2 (also known as KMT2D) cause Kabuki syndrome, a severe multi-system childhood disease. Therefore, LoF mutations in this gene should be depleted in normal individuals. In this exercise, we will determine the frequency of LoF mutations in KMT2D in the ExAc database (65,000 individuals) using command line tools and python.
 
-(i) We will use the 'tabix' tool to download the portion of the ExAc VCF file that contains all mutations in the KMT2D gene. 'tabix' is a very useful command line tool that works with tabular data (VCF files, bed files) to extract the subset of lines that overlap a genomic interval (start and end of the KMT2D gene in this example).
+(i) First, we will use the 'tabix' tool to download the portion of the ExAc VCF file that contains all mutations in the KMT2D gene. 'tabix' is a very useful command line tool that works with tabular data (VCF files, bed files) to extract the subset of lines that overlap a genomic interval (start and end of the KMT2D gene in this example).
 
 ```Shell
 tabix -h ftp://ftp.broadinstitute.org/pub/ExAC_release/release0.3.1/ExAC.r0.3.1.sites.vep.vcf.gz 12:49412758-49453557  > KMT2D.ExAc.vcf
