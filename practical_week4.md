@@ -52,7 +52,7 @@ grep -E "missense_variant" KMT2D.ExAc.simplified.csv | awk '{ if ($8 ==  "38/54"
 grep -E "synonymous_variant" KMT2D.ExAc.simplified.csv | awk '{ if ($8 ==  "38/54") print; }' | wc -l 
 ```
 
-Is the missense_variant:synonymous_variant ratio for Exon 38 smaller than that for the entire gene? 
+Is the missense_variant:synonymous_variant ratio for Exon 38 smaller than that for the entire gene? Is the difference statistically significant?
 
 This type of analysis can be used to prioritize specific regions of genes that are depleted of missense variants in normal individuals and are likely to harbor disease-causing mutations. For more details, you can read this paper: https://www.biorxiv.org/content/10.1101/148353v1
 
@@ -128,12 +128,17 @@ affect the protein sequence. We will use a population allele frequency threshold
 cat genotypes.coding.csv | awk '{FS="\t";} {if ($6 == "0/1" && $7 == "0/1" && $8 == "0/0" && $9 == "0/1" && $12 != "synonymous SNV" && $13 < 0.001) print; }' > candidates.csv
 ```
 
-How many candidate variants are identified using the filter? How many distinct candidate genes are identified? 
+How many candidate variants are identified using the filter? 
 
-Next, we will determine if any of the candidate genes are known to cause human diseases. For this, we will use the OMIM (https://omim.org) database that contains information about human genes and phenotypes. The file "omim.genes.disease" contains human genes and the corresponding phenotypes associated with them. 
+We can use the Unix 'uniq' utility to find the number of distinct candidate genes with the variants:
 
 ```Shell
 cut -f11 candidates.csv | uniq > candidates.genes
+```
+
+Next, we will determine if any of the candidate genes are already known to cause human diseases. For this, we will use the OMIM (https://omim.org) database that contains information about human genes and phenotypes. The file "omim.genes.disease" contains human genes and the corresponding phenotypes associated with them. We can search for each candidate gene in this table: 
+
+```Shell
 grep -w -f candidates.genes omim.genes.disease 
 ```
 
