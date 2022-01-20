@@ -1,5 +1,6 @@
 ## MED 263: Searching for disease mutations using DNA sequence data and bioinformatics 
 
+We will be using Unix/Linux command line utilities such as 'grep', 'awk', 'sort', 'cat' in this practical. If you are not familiar with these, you can find some basic information at this webpage: https://rsh249.github.io/bioinformatics/unix_shell.html 
 
 ## 1. Analysis of loss-of-function mutations
 Loss-of-function (LoF) mutations in genes are expected to have a strong impact on gene function. In the lecture, we learned that LoF mutations in the MLL2 (also known as KMT2D) cause Kabuki syndrome, a severe multi-system childhood disease. Therefore, LoF mutations in this gene should be depleted in normal individuals. In this exercise, we will estimate the frequency of LoF mutations in KMT2D in the ExAc database (65,000 individuals) using command line tools and python.
@@ -17,8 +18,7 @@ of the gene. We will use a python script to convert the VCF file into a simplifi
 python3.6 convert_vcf_tabular.py  KMT2D.ExAc.vcf > KMT2D.ExAc.simplified.csv
 ```
 
-If you are familiar with python, 
-The csv file can be viewed in a text editor or loaded in a spreadsheet. 
+The csv file can be viewed in a text editor or loaded as a spreadsheet. 
 
 Using simple grep commands, we can count the number of LoF variant sites in this VCF file. LoF variants are of three types: stop_gain, splice_acceptor/splice_donor and frameshift.
 
@@ -44,12 +44,12 @@ grep -E "missense_variant" KMT2D.ExAc.simplified.csv | wc -l
 grep -E "synonymous_variant" KMT2D.ExAc.simplified.csv | wc -l 
 ```
 
-What is the ratio of the number of missense variants and the number of synonymous variants? Exon 38 has been observed to be enriched in disease-causing mutations in this gene. Therefore, we would expect to see a lower than expected number of missense variants in the normal population. To check this, we will calculate the number of missense and synonymous variants in Exon 38: 
+What is the ratio of the number of missense variants and the number of synonymous variants? Exon 38 has been observed to be enriched in disease-causing mutations in this gene. Therefore, we would expect to see a lower than expected number of missense variants in the normal population in this exon relative to synonymous variants. To check this, let us calculate the number of missense and synonymous variants in Exon 38: 
 
 
 ```Shell
-grep -E "missense_variant" KMT2D.ExAc.simplified.csv | grep -E "38/54" | wc -l 
-grep -E "synonymous_variant" KMT2D.ExAc.simplified.csv | grep -E "38/54" | wc -l 
+grep -E "missense_variant" KMT2D.ExAc.simplified.csv | awk '{ if ($8 ==  "38/54") print; }' | wc -l 
+grep -E "synonymous_variant" KMT2D.ExAc.simplified.csv | awk '{ if ($8 ==  "38/54") print; }' | wc -l 
 ```
 
 Is the missense_variant:synonymous_variant ratio for Exon 38 smaller than that for the entire gene? 
