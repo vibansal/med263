@@ -31,8 +31,8 @@ What is the total number of LoF variant sites in the KMT2D gene in the ExAc data
 (iii) The ExAc database provides "LoF" constraint scores (pLI score) for human genes based on the observed and expected counts of LoF mutations in each gene. The constraint scores range from 0 (no constraint) to 1 (completely constrained). For the KMT2D gene, the observed:expected ratio is 10:126 which implies that the observed number of LoF variants is much less than expected. We will use the list of scores to find the rank of the KMT2D (MLL2) gene. The data file "fordist_cleaned_exac_nonTCGA_z_pli_rec_null_data.txt" contains the summary of the constraint scores. 
 
 ```Shell
-sort -k 2,2 fordist_cleaned_exac_nonTCGA_z_pli_rec_null_data.txt | cut -f 2,20 > allgenes.constraint.scores
-cat allgenes.constraint.scores | sort -k 2gr | awk '{ a += 1; if ($2 == "KMT2D") print $2,a; }'
+sort -k 2,2 DATA/practical-1/fordist_cleaned_exac_nonTCGA_z_pli_rec_null_data.txt | cut -f 2,20 > allgenes.constraint.scores
+cat allgenes.constraint.scores | sort -k 2,2gr | awk '{ a += 1; if ($1 == "KMT2D") print $1,a; }'
 ```
 You can also load this file into excel and sort to find the rank.
 
@@ -63,14 +63,14 @@ Gene expression information can be used to prioritize genes for association with
 using more than 50 different tissues and cell-lines from hundreds of individuals. Summary data (RPKM values per gene for each tissue) is available for download from the GTEX website. We will use this data to analyze gene expression in disease-associated genes. 
 
 File with RPKM values for all ENSEMBL transcripts and 50+ tissues/cell lines in a table format: 
-* GTEx_Analysis_v6p_RNA-seq_RNA-SeQCv1.1.8_gene_median_rpkm.gct
+* GTEx_Analysis_v6p_RNA-seq_RNA-SeQCv1.1.8_gene_median_rpkm.gct (folder DATA/practical-3)
 
 The first line of this file gives information about the tissues/cell-lines and each subsequent line has the expression information for an individual transcript. This file can easily be loaded into excel as well. 
 
 (i) Extract the gene expression values for KMT2D from the data:
 
 ```Shell
-grep KMT2D DATA/GTEx_Analysis_v6p_RNA-seq_RNA-SeQCv1.1.8_gene_median_rpkm.gct
+grep KMT2D DATA/practical-2/GTEx_Analysis_v6p_RNA-seq_RNA-SeQCv1.1.8_gene_median_rpkm.gct
 ```
 KMT2D is expressed at a high level across virtually all tissues which is consistent with the multi-organ phenotype associated with Kabuki syndrome. A visual plot of the RPKM values can be seen at http://gtexportal.org/home/gene/KMT2D or [here](DATA/practical-2/kmt2d_exp.png)
 
@@ -78,7 +78,7 @@ KMT2D is expressed at a high level across virtually all tissues which is consist
 (ii) Compare the expression pattern for KMT2D to a gene RFX6 (discussed in Tuesday's lecture) which is expressed in a few tissues (stomach, pancreas, adrenal glands): http://gtexportal.org/home/gene/RFX6 or [here](DATA/practical-2/RFX6-expression.png)
 
 ```Shell
-grep RFX6 DATA/GTEx_Analysis_v6p_RNA-seq_RNA-SeQCv1.1.8_gene_median_rpkm.gct 
+grep RFX6 DATA/practical-2/GTEx_Analysis_v6p_RNA-seq_RNA-SeQCv1.1.8_gene_median_rpkm.gct 
 ```
 
 (iii) MLL2/KMT2D is the primary gene that is mutated in Kabuki syndrome (discussed in lecture). KDM6A is another gene that has been implicated in Kabuki syndrome. This suggests that the genes should have a similar expression profile. We will calculate the correlation between the expression profiles of KMT2D and KDM6A using the scipy.stats.spearmanr function:
@@ -125,7 +125,7 @@ We want to search for variants that are shared by the three affected individuals
 affect the protein sequence. We will use a population allele frequency threshold of 0.1% to filter out common variants. Using awk, the following bash command can be used to search for potential disease-causing variants:
 
 ```Shell
-cat genotypes.coding.csv | awk '{FS="\t";} {if ($6 == "0/1" && $7 == "0/1" && $8 == "0/0" && $9 == "0/1" && $12 != "synonymous SNV" && $13 < 0.001 && $14 < 0.001) print; }' > candidates.csv
+cat DATA/practical-3/genotypes.coding.csv | awk '{FS="\t";} {if ($6 == "0/1" && $7 == "0/1" && $8 == "0/0" && $9 == "0/1" && $12 != "synonymous SNV" && $13 < 0.001 && $14 < 0.001) print; }' > candidates.csv
 ```
 
 How many candidate variants are identified using the filter? 
@@ -139,7 +139,7 @@ cut -f11 candidates.csv | uniq > candidates.genes
 Next, we will determine if any of the candidate genes are already known to cause human diseases. For this, we will use the OMIM (https://omim.org) database that contains information about human genes and phenotypes. The file "omim.genes.disease" contains human genes and the corresponding phenotypes associated with them. We can search for each candidate gene in this table: 
 
 ```Shell
-grep -w -f candidates.genes omim.genes.disease 
+grep -w -f candidates.genes DATA/practical-3/omim.genes.disease 
 ```
 
 Is there a gene that is known to cause an eye-related phenotype?
