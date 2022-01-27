@@ -63,7 +63,7 @@ Gene expression information can be used to prioritize genes for association with
 using more than 50 different tissues and cell-lines from hundreds of individuals. Summary data (RPKM values per gene for each tissue) is available for download from the GTEX website. We will use this data to analyze gene expression in disease-associated genes. 
 
 File with RPKM values for all ENSEMBL transcripts and 50+ tissues/cell lines in a table format: 
-* GTEx_Analysis_v6p_RNA-seq_RNA-SeQCv1.1.8_gene_median_rpkm.gct (folder DATA/practical-3)
+* GTEx_Analysis_v6p_RNA-seq_RNA-SeQCv1.1.8_gene_median_rpkm.gct (folder DATA/practical-2)
 
 The first line of this file gives information about the tissues/cell-lines and each subsequent line has the expression information for an individual transcript. This file can easily be loaded into excel as well. 
 
