@@ -96,15 +96,6 @@ The correlation between the expression values of the two genes is high. This is 
 python3.6 corr.py KMT2D all > KMT2D.highcorrgenes
 ```
 
-(v) We can sort the list of genes by the correlation coefficient value to find the top three genes whose expression is highly correlated with the expression profile of KMT2D. Using the constrained LoF scores data, we will determine if these genes are also constrained against LoF mutations.
-
-```Shell
-sort -k 3,3gr KMT2D.highcorrgenes | head
-grep KMT2B allgenes.constraint.scores
-grep BRPF1 allgenes.constraint.scores
-```
-
-These genes correspond to epigenetic regulators or histone-modifying proteins and have been linked to rare childhood diseases: [KMT2B](https://www.omim.org/entry/617284) and [BRPF1](https://www.omim.org/entry/617333)
 
 
 ## 3. Variant filtering in rare disease
@@ -147,16 +138,17 @@ Is there a gene that is known to cause an eye-related phenotype?
 
 ## Homework exercises
 
-1. Genes that are expressed primarily in a single tissue or cell-type are likely to be important for the function of that tissue and relevant for diseases that affect that specific tissue. 
-Use the GTEX RNA-seq expression data to find genes that show a tissue-specific expression profile, i.e. genes for which the expression in the tissue with the maximum RPKM value is at least 5 times the RPKM values in all other tissues. Report the top 5 genes that are primarily expressed in 'pancreas'. 
+1. Find the three top-ranking (ranked by correlation coefficient) genes whose expression is highly correlated with the expression profile of KMT2D. Are these genes also constrained against LoF mutations? Use OMIM to determine if these genes have also been linked to rare diseases.
 
 ---
 
-2. It is known that certain genes are expressed at very low levels in a specific cell type despite being expressed universally across almost all other cell types. One example of such a cell type is pancreatic beta-cells that release insulin in response to glucose. The file "disallowed.genes" has a list of 20 genes that are known to be disallowed in pancreatic beta-cells. Use the GTEX RNA-seq expression data to compare the expression of these gene in pancreas with the expression in other tissues. For each gene, calculate the ratio of the expression level in pancreas to the mean expression level in all other cell-types. For how many genes is this ratio less than 0.1? Use the OMIM database to determine if mutations in any of these genes are known to cause a insulin secretion defect due to aberrant expression. 
+2. It is known that certain genes are expressed at very low levels in a specific cell type despite being expressed at a high level across almost all other cell types. Aberrant expression of genes in the "disallowed" cell type can result in disease phenotype(s). The file "disallowed.genes" contains a list of 20 genes that are known to be disallowed in pancreatic beta-cells. Use the GTEX RNA-seq expression data (used in class) to compare the expression of these genes in the tissue "pancreas" with the expression in other tissues. For each gene, calculate the ratio of the expression level in pancreas to the mean expression level in all other cell-types. For how many genes is this ratio less than 0.1? Use the OMIM database (https://www.omim.org) to determine if mutations in any of these genes are known to cause human disease that is related to the pancreas.
+
+#Can a LoF mutation result in aberrant gene expression?
 
 ---
 
-3. For the third practical exercise ("Variant filtering"), we used the population allele frequencies from ExAc to filter out common variants. The input file contains allele frequencies for each variant in two population (European: column 13 and South Asian: column 14). Determine the number of candidate disease variants obtained by filtering using the allele frequency for each of the two population separately (threshold of 0.001). Which population results in a lower number of candidate variants? What can we infer about the ancestry of the sequenced individuals from this? 
+3. For the third practical exercise ("Variant filtering"), we used the population allele frequencies from ExAc to filter out common variants. Population allele frequencies for some variants can vary across populations, particularly for rare variants. The input file contains allele frequencies for each variant in two populations (European: column 13 and South Asian: column 14). The individuals sequenced in this study are from South Asia. Determine the number of candidate disease variants obtained by filtering using the allele frequency for each of the two population separately (use an allele frequency threshold of 0.001). Which population results in a lower number of candidate variants? Is this consistent with the ancestry of the individuals?
 
 
 
