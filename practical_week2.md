@@ -2,7 +2,7 @@
 
 We will be using Unix/Linux command line utilities such as 'grep', 'awk', 'sort', 'cut' and 'uniq' in this practical. If you are not familiar with these, you can find some basic information at this webpage: https://rsh249.github.io/bioinformatics/unix_shell.html 
 
-## 1. Prioritizing disease genes using population variant data
+## 1. Prioritizing disease variants using computational predictions
 Loss-of-function (LoF) mutations in genes are expected to have a strong impact on gene function. In the lecture, we learned that LoF mutations in the MLL2 (also known as KMT2D) cause Kabuki syndrome, a severe multi-system childhood disease. Therefore, LoF mutations in this gene should be depleted in normal individuals. In this exercise, we will determine the frequency of LoF mutations in KMT2D in the ExAc database (65,000 individuals) using command line tools and Python.
 
 (i) First, we will use the 'tabix' tool to download the portion of the ExAc VCF file that contains all mutations in the KMT2D gene. 'tabix' is a very useful command line tool that works with tabular data (VCF files, bed files) to extract the subset of lines that overlap a genomic interval (start and end of the KMT2D gene in this example).
@@ -51,7 +51,7 @@ python3.6
 The fisher_exact function returns two values: (i) the odds ratio and (ii) p-value (two-tailed probability of the odds-ratio being different than 1). Is the p-value significant? What is the interpretation of the odds ratio? 
 
 
-## 2. Prioritizing disease genes using gene expression data 
+## 2. Using gene expression data for prioritizing disease genes
 
 Gene expression information can be used to prioritize genes for association with disease. The GTEx project (http://gtexportal.org/home/) has generated RNA-seq data
 using more than 50 different tissues and cell-lines from hundreds of individuals. Summary data (RPKM values per gene for each tissue) is available for download from the GTEX website. We will use this data to analyze gene expression in disease-associated genes. 
