@@ -2,10 +2,10 @@
 
 We will be using Unix/Linux command line utilities such as 'grep', 'awk', 'sort', 'cut' and 'uniq' in this practical. If you are not familiar with these, you can find some basic information at this webpage: https://rsh249.github.io/bioinformatics/unix_shell.html 
 
-## 1. Prioritizing disease variants using computational predictions
-Loss-of-function (LoF) mutations in genes are expected to have a strong impact on gene function. In the lecture, we learned that LoF mutations in the MLL2 (also known as KMT2D) cause Kabuki syndrome, a severe multi-system childhood disease. Therefore, LoF mutations in this gene should be depleted in normal individuals. In this exercise, we will determine the frequency of LoF mutations in KMT2D in the ExAc database (65,000 individuals) using command line tools and Python.
+## 1. Analysis of gene-specific variants using computational tools
+Loss-of-function (LoF) mutations in genes are expected to have a strong impact on gene function. In the lecture, we learned that LoF mutations in the MLL2 (also known as KMT2D) cause Kabuki syndrome, a severe multi-system childhood disease. In this exercise, we will analyze coding variants in this gene using computational tools that annotate variants with their predicted functional impact.
 
-(i) First, we will use the 'tabix' tool to download the portion of the ExAc VCF file that contains all mutations in the KMT2D gene. 'tabix' is a very useful command line tool that works with tabular data (VCF files, bed files) to extract the subset of lines that overlap a genomic interval (start and end of the KMT2D gene in this example).
+(i) The ExAC database (currently part of gnomAD) contains variant calls from exome sequencing of 65,000 human individuals. First, we will use the 'tabix' tool to download the portion of the ExAC VCF file that contains all variants in the KMT2D gene. Tabix is a useful command line tool that works with tabular data (VCF files, bed files) to extract the subset of lines that overlap a genomic interval (start and end of the KMT2D gene in this example).
 
 ```Shell
 tabix -h ftp://ftp.broadinstitute.org/pub/ExAC_release/release0.3.1/ExAC.r0.3.1.sites.vep.vcf.gz 12:49412758-49453557  > KMT2D.ExAc.vcf
@@ -24,6 +24,7 @@ Using simple grep commands, we can count the number of different types of varian
 
 ```Shell
 grep -E "stop_gained|splice_acceptor_variant|splice_donor_variant|frameshift" KMT2D.ExAc.simplified.csv | wc -l 
+grep "missense" KMT2D.ExAc.simplified.csv | wc -l 
 ```
 
 (iii) 6 of the 12 LoF variants in the variant file are splice-site disrupting variants (splice_acceptor or splice_donor). The deleterious impact of such variants can sometimes be 'mitigated' by usage of cryptic splice sites located near the canonical site. The deep-learning tool, SpliceAI [Jaganathan et al. Cell 2019](https://doi.org/10.1016/j.cell.2018.12.015), has high accuracy for predicting the effect of splicing altering variants. The splice variant, 12-49422743-T-C, is present in four individuals in the latest version of the gnomAD database. Therefore, it is highly unlikely that this variant is a LoF variant. We will use the spliceAI web-portal (https://spliceailookup.broadinstitute.org) to evaluate this variant further.
@@ -51,7 +52,45 @@ python3.6
 The fisher_exact function returns two values: (i) the odds ratio and (ii) p-value (two-tailed probability of the odds-ratio being different than 1). Is the p-value significant? What is the interpretation of the odds ratio? 
 
 
-## 2. Using gene expression data for prioritizing disease genes
+## 2. Variant filtering in multiple related individuals (rare disease)
+In the lecture, we talked about how DNA sequencing of related individuals can be used to find the genetic cause of rare diseases that affect individuals in
+a family. This requires prioritizing variants based on a combination of (i) sharing by affected individuals, (ii) population allele frequency and (iii) impact on
+gene function. In this exercise, we will use variants identified from exome sequencing of four individuals from a single family with a phenotype of early-onset
+glaucoma (eye disease) to search for the disease causing variants. The variants were called using the GATK HaplotypeCaller and annotated using the Annovar tool.
+The variants and genotypes have been summarized in a tabular format in the file "genotypes.coding.csv" (folder: DATA/practical-2)
+Each variant has been annotated for its impact on genes and the allele frequency for each variant has also been obtained using data from the ExAc database. The allele frequency information is provided for two populations: European (EUR_AF, column 13) and South Asian (SAS_AF, column 14).
+This file can be loaded into a spreadsheet as well. The four individuals correspond to:
+
+* the mother (affected), label S1 and column 6 in the table
+* child 1 (affected), label S2  and column 7 in the table
+* child 2 (unaffected), label S3 and column 8 in the table
+* child 3 (affected), label S4 and column 9 in the table
+
+We want to search for variants that are shared by the three affected individuals (and not by the one unaffected individual), are rare in the population and also
+affect the protein sequence. We will use a population allele frequency threshold of 0.1% to filter out common variants. Using awk, the following bash command can be used to search for potential disease-causing variants:
+
+```Shell
+cat DATA/practical-2/genotypes.coding.csv | awk '{FS="\t";} {if ($6 == "0/1" && $7 == "0/1" && $8 == "0/0" && $9 == "0/1" && $12 != "synonymous SNV" && $13 < 0.001 && $14 < 0.001) print; }' > candidates.csv
+```
+
+How many candidate variants are identified using the filter? 
+
+We can use the Unix 'uniq' utility to find the number of distinct candidate genes with the variants:
+
+```Shell
+cut -f11 candidates.csv | uniq > candidates.genes
+```
+
+Next, we will determine if any of the candidate genes are already known to cause human diseases. For this, we will use the OMIM (https://omim.org) database that contains information about human genes and phenotypes. The file "omim.genes.disease" contains human genes and the corresponding phenotypes associated with them. We can search for each candidate gene in this table: 
+
+```Shell
+grep -w -f candidates.genes DATA/practical-2/omim.genes.disease 
+```
+
+Is there a gene that is known to cause an eye-related phenotype?
+
+
+## 3. Using gene expression data for analyzing disease genes
 
 Gene expression information can be used to prioritize genes for association with disease. The GTEx project (http://gtexportal.org/home/) has generated RNA-seq data
 using more than 50 different tissues and cell-lines from hundreds of individuals. Summary data (RPKM values per gene for each tissue) is available for download from the GTEX website. We will use this data to analyze gene expression in disease-associated genes. 
@@ -85,44 +124,6 @@ The correlation between the expression values of the two genes is high. This is 
 
 
 
-## 3. Variant filtering in rare disease
-In the lecture, we talked about how DNA sequencing of related individuals can be used to find the genetic cause of rare diseases that affect individuals in
-a family. This requires prioritizing variants based on a combination of (i) sharing by affected individuals, (ii) population allele frequency and (iii) impact on
-gene function. In this exercise, we will use variants identified from exome sequencing of four individuals from a single family with a phenotype of early-onset
-glaucoma (eye disease) to search for the disease causing variants. The variants were called using the GATK HaplotypeCaller and annotated using the Annovar tool.
-The variants and genotypes have been summarized in a tabular format in the file "genotypes.coding.csv". 
-Each variant has been annotated for its impact on genes and the allele frequency for each variant has also been obtained using data from the ExAc database. The allele frequency information is provided for two populations: European (column 13) and South Asian (column 14).
-This file can be loaded into a spreadsheet as well. The four individuals correspond to:
-
-* the mother (affected), label S1 and column 6 in the table
-* child 1 (affected), label S2  and column 7 in the table
-* child 2 (unaffected), label S3 and column 8 in the table
-* child 3 (affected), label S4 and column 9 in the table
-
-We want to search for variants that are shared by the three affected individuals (and not by the one unaffected individual), are rare in the population and also
-affect the protein sequence. We will use a population allele frequency threshold of 0.1% to filter out common variants. Using awk, the following bash command can be used to search for potential disease-causing variants:
-
-```Shell
-cat DATA/practical-3/genotypes.coding.csv | awk '{FS="\t";} {if ($6 == "0/1" && $7 == "0/1" && $8 == "0/0" && $9 == "0/1" && $12 != "synonymous SNV" && $13 < 0.001 && $14 < 0.001) print; }' > candidates.csv
-```
-
-How many candidate variants are identified using the filter? 
-
-We can use the Unix 'uniq' utility to find the number of distinct candidate genes with the variants:
-
-```Shell
-cut -f11 candidates.csv | uniq > candidates.genes
-```
-
-Next, we will determine if any of the candidate genes are already known to cause human diseases. For this, we will use the OMIM (https://omim.org) database that contains information about human genes and phenotypes. The file "omim.genes.disease" contains human genes and the corresponding phenotypes associated with them. We can search for each candidate gene in this table: 
-
-```Shell
-grep -w -f candidates.genes DATA/practical-3/omim.genes.disease 
-```
-
-Is there a gene that is known to cause an eye-related phenotype?
-
-
 ## Homework exercises
 
 1. In class, we analyzed the predictions from the SIFT tool for missense variants. Perform the same analysis for the PolyPhen2 predictions. For this, you can group the 'probably damaging' (D) and 'possibly damaging (P) predictions into a single category. Which method (SIFT or Polyphen2) has a lower p-value? What can we infer about the predictive ability of these methods for classifying missense variants in the KMT2D gene? 
@@ -130,12 +131,11 @@ Is there a gene that is known to cause an eye-related phenotype?
 
 ---
 
-2. It is known that certain genes are expressed at very low levels in a specific cell type despite being expressed at a high level across almost all other cell types. Aberrant expression of genes in the "disallowed" cell type can result in disease phenotype(s). The file "disallowed.genes" contains a list of 20 genes that are known to be disallowed in pancreatic beta-cells. Use the GTEX RNA-seq expression data (used in class) to compare the expression of these genes in the tissue "pancreas" with the expression in other tissues. For each gene, calculate the ratio of the expression level in pancreas to the mean expression level in all other cell-types. For how many genes is this ratio less than 0.1? Use the OMIM database (https://www.omim.org) to determine if mutations in any of these genes are known to cause human disease that is related to the pancreas.
-
+2. In the second practical exercise ("Variant filtering"), we used the population allele frequencies from ExAc to filter out common variants. Population allele frequencies for some variants can vary across populations, particularly for rare variants. The input file contains allele frequencies for each variant in two populations (European: column 13 and South Asian: column 14). The individuals sequenced in this study are from South Asia. Determine the number of candidate disease variants obtained by filtering using the allele frequency for each of the two population separately (use an allele frequency threshold of 0.001). Which population results in a lower number of candidate variants? Is this consistent with the ancestry of the individuals? Explain.
 
 ---
 
-3. In the third practical exercise ("Variant filtering"), we used the population allele frequencies from ExAc to filter out common variants. Population allele frequencies for some variants can vary across populations, particularly for rare variants. The input file contains allele frequencies for each variant in two populations (European: column 13 and South Asian: column 14). The individuals sequenced in this study are from South Asia. Determine the number of candidate disease variants obtained by filtering using the allele frequency for each of the two population separately (use an allele frequency threshold of 0.001). Which population results in a lower number of candidate variants? Is this consistent with the ancestry of the individuals? Explain.
+3. It is known that certain genes are expressed at very low levels in a specific cell type despite being expressed at a high level across almost all other cell types. Aberrant expression of genes in the "disallowed" cell type can result in disease phenotype(s). The file "disallowed.genes" contains a list of 20 genes that are known to be disallowed in pancreatic beta-cells. Use the GTEX RNA-seq expression data (used in class) to compare the expression of these genes in the tissue "pancreas" with the expression in other tissues. For each gene, calculate the ratio of the expression level in pancreas to the mean expression level in all other cell-types. For how many genes is this ratio less than 0.1? Use the OMIM database (https://www.omim.org) to determine if mutations in any of these genes are known to cause human disease that is related to the pancreas.
 
 
 
