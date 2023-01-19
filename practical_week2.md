@@ -8,6 +8,7 @@ Loss-of-function (LoF) mutations in genes are expected to have a strong impact o
 (i) The ExAC database (currently part of gnomAD) contains variant calls from exome sequencing of 65,000 human individuals. First, we will use the 'tabix' tool to download the portion of the ExAC VCF file that contains all variants in the KMT2D gene. Tabix is a useful command line tool that works with tabular data (VCF files, bed files) to extract the subset of lines that overlap a genomic interval (start and end of the KMT2D gene in this example).
 
 ```Shell
+wget -c ftp://ftp.broadinstitute.org/pub/ExAC_release/release0.3.1/ExAC.r0.3.1.sites.vep.vcf.gz.tbi 
 tabix -h ftp://ftp.broadinstitute.org/pub/ExAC_release/release0.3.1/ExAC.r0.3.1.sites.vep.vcf.gz 12:49412758-49453557  > KMT2D.ExAc.vcf
 ```
 
