@@ -96,22 +96,22 @@ Gene expression information can be used to prioritize genes for association with
 using more than 50 different tissues and cell-lines from hundreds of individuals. Summary data (RPKM values per gene for each tissue) is available for download from the GTEX website. We will use this data to analyze gene expression in disease-associated genes. 
 
 File with RPKM values for all ENSEMBL transcripts and 50+ tissues/cell lines in a table format: 
-* GTEx_Analysis_v6p_RNA-seq_RNA-SeQCv1.1.8_gene_median_rpkm.gct (folder DATA/practical-2)
+* GTEx_Analysis_v6p_RNA-seq_RNA-SeQCv1.1.8_gene_median_rpkm.gct (folder DATA/practical-3)
 
 The first line of this file gives information about the tissues/cell-lines and each subsequent line has the expression information for an individual transcript. This file can easily be loaded into excel as well. 
 
 (i) Extract the gene expression values for KMT2D from the data:
 
 ```Shell
-grep -w KMT2D DATA/practical-2/GTEx_Analysis_v6p_RNA-seq_RNA-SeQCv1.1.8_gene_median_rpkm.gct
+grep -w KMT2D DATA/practical-3/GTEx_Analysis_v6p_RNA-seq_RNA-SeQCv1.1.8_gene_median_rpkm.gct
 ```
-KMT2D is expressed at a high level across virtually all tissues which is consistent with the multi-organ phenotype associated with Kabuki syndrome. A visual plot of the RPKM values can be seen at http://gtexportal.org/home/gene/KMT2D or [here](DATA/practical-2/kmt2d_exp.png)
+KMT2D is expressed at a high level across virtually all tissues which is consistent with the multi-organ phenotype associated with Kabuki syndrome. A visual plot of the RPKM values can be seen at http://gtexportal.org/home/gene/KMT2D or [here](DATA/practical-3/kmt2d_exp.png)
 
 
-(ii) Compare the expression pattern for KMT2D to a gene RFX6 (discussed in Tuesday's lecture) which is expressed in a few tissues (stomach, pancreas, adrenal glands): http://gtexportal.org/home/gene/RFX6 or [here](DATA/practical-2/RFX6-expression.png)
+(ii) Compare the expression pattern for KMT2D to a gene RFX6 (discussed in Tuesday's lecture) which is expressed in a few tissues (stomach, pancreas, adrenal glands): http://gtexportal.org/home/gene/RFX6 or [here](DATA/practical-3/RFX6-expression.png)
 
 ```Shell
-grep -w RFX6 DATA/practical-2/GTEx_Analysis_v6p_RNA-seq_RNA-SeQCv1.1.8_gene_median_rpkm.gct 
+grep -w RFX6 DATA/practical-3/GTEx_Analysis_v6p_RNA-seq_RNA-SeQCv1.1.8_gene_median_rpkm.gct 
 ```
 
 (iii) MLL2/KMT2D is the primary gene that is mutated in Kabuki syndrome (discussed in lecture). KDM6A is another gene that has been implicated in Kabuki syndrome (5-10% of individuals). This suggests that the genes should have a similar expression profile. We will calculate the correlation between the expression profiles of KMT2D and KDM6A using the scipy.stats.spearmanr function:
@@ -126,7 +126,7 @@ The correlation between the expression values of the two genes is high. This is 
 
 ## Homework exercises
 
-1. In class, we analyzed the predictions from the SIFT tool for missense variants. Perform the same analysis for the PolyPhen2 predictions. For this, you can group the 'probably damaging' (D) and 'possibly damaging (P) predictions into a single category. Which method (SIFT or Polyphen2) has a lower p-value? What can we infer about the predictive ability of these methods for classifying missense variants in the KMT2D gene? 
+1. In class, we analyzed the SIFT tool predictions for missense variants (ExAc and Kabuki syndrome). Perform the same analysis for the PolyPhen2 predictions. For this, you can group the 'probably damaging' (D) and 'possibly damaging (P) predictions into a single category. Which method (SIFT or Polyphen2) has a lower p-value? Are the predictions of the two methods (SIFT and Polyphen2) correlated? (Calculate Pearson correlation coefficient between the two vectors) 
 
 
 ---
