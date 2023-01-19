@@ -9,7 +9,7 @@ if len(sys.argv) < 3:
     print("specify two gene names",file=sys.stderr) 
     sys.exit() 
 
-File = open('DATA/practical-2/GTEx_Analysis_v6p_RNA-seq_RNA-SeQCv1.1.8_gene_median_rpkm.gct');
+File = open('DATA/practical-3/GTEx_Analysis_v6p_RNA-seq_RNA-SeQCv1.1.8_gene_median_rpkm.gct');
 if not File: print("gene expression file is missing"); sys.exit()
 gene1 = sys.argv[1]; gene2 = sys.argv[2]; 
 
