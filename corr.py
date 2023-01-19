@@ -4,6 +4,7 @@ from scipy import stats
 
 ## code to calculate correlation coefficient between gene expression levels of two genes (user specified) 
 
+MIN_THRESH=0.6
 if len(sys.argv) < 3: 
     print("specify two gene names",file=sys.stderr) 
     sys.exit() 
@@ -31,6 +32,5 @@ else:
 
 	for i in range(len(genenames)):
 		stat = stats.spearmanr(exp1,exps[i]); 
-		if stat[0] >= 0.90: print(gene1,genenames[i],stat[0],stat[1])
-		#if stat.correlation >= 0.93: print gene1,genenames[i],stat.correlation,stat.pvalue
+		if stat[0] >= MIN_THRESH: print(gene1,genenames[i],stat[0],stat[1])
 

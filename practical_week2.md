@@ -3,7 +3,7 @@
 We will be using Unix/Linux command line utilities such as 'grep', 'awk', 'sort', 'cut' and 'uniq' in this practical. If you are not familiar with these, you can find some basic information at this webpage: https://rsh249.github.io/bioinformatics/unix_shell.html 
 
 ## 1. Prioritizing disease genes using population variant data
-Loss-of-function (LoF) mutations in genes are expected to have a strong impact on gene function. In the lecture, we learned that LoF mutations in the MLL2 (also known as KMT2D) cause Kabuki syndrome, a severe multi-system childhood disease. Therefore, LoF mutations in this gene should be depleted in normal individuals. In this exercise, we will determine the frequency of LoF mutations in KMT2D in the ExAc database (65,000 individuals) using command line tools and python.
+Loss-of-function (LoF) mutations in genes are expected to have a strong impact on gene function. In the lecture, we learned that LoF mutations in the MLL2 (also known as KMT2D) cause Kabuki syndrome, a severe multi-system childhood disease. Therefore, LoF mutations in this gene should be depleted in normal individuals. In this exercise, we will determine the frequency of LoF mutations in KMT2D in the ExAc database (65,000 individuals) using command line tools and Python.
 
 (i) First, we will use the 'tabix' tool to download the portion of the ExAc VCF file that contains all mutations in the KMT2D gene. 'tabix' is a very useful command line tool that works with tabular data (VCF files, bed files) to extract the subset of lines that overlap a genomic interval (start and end of the KMT2D gene in this example).
 
@@ -20,41 +20,35 @@ python3.6 convert_vcf_tabular.py  KMT2D.ExAc.vcf > KMT2D.ExAc.simplified.csv
 
 The csv file can be viewed in a text editor or loaded as a spreadsheet. 
 
-Using simple grep commands, we can count the number of LoF variant sites in this VCF file. LoF variants are of three types: stop_gain, splice_acceptor/splice_donor and frameshift.
+Using simple grep commands, we can count the number of different types of variants in this VCF file. LoF variants are of three types: stop_gain, splice_acceptor/splice_donor and frameshift.
 
 ```Shell
 grep -E "stop_gained|splice_acceptor_variant|splice_donor_variant|frameshift" KMT2D.ExAc.simplified.csv | wc -l 
 ```
 
-What is the total number of LoF variant sites in the KMT2D gene in the ExAc database?  
+(iii) 6 of the 12 LoF variants in the variant file are splice-site disrupting variants (splice_acceptor or splice_donor). The deleterious impact of such variants can sometimes be 'mitigated' by usage of cryptic splice sites located near the canonical site. The deep-learning tool, SpliceAI (Jaganathan et al. Cell 2019), has high accuracy for predicting the effect of splicing altering variants. The splice variant, 12-49422743-T-C, is present in four individuals in the latest version of the gnomAD database. Therefore, it is highly unlikely that this variant is a LoF variant. We will use the spliceAI web-portal (https://spliceailookup.broadinstitute.org) to evaluate this variant further.
 
-(iii) The ExAc database provides "LoF" constraint scores (pLI score) for human genes based on the observed and expected counts of LoF mutations in each gene. The constraint scores range from 0 (no constraint) to 1 (completely constrained). For the KMT2D gene, the observed:expected ratio is 10:126 which implies that the observed number of LoF variants is much less than expected. We will use the list of scores to find the rank of the KMT2D (MLL2) gene. The data file "fordist_cleaned_exac_nonTCGA_z_pli_rec_null_data.txt" contains the summary of the constraint scores. 
-
-```Shell
-sort -k 2,2 DATA/practical-1/fordist_cleaned_exac_nonTCGA_z_pli_rec_null_data.txt | cut -f 2,20 > allgenes.constraint.scores
-cat allgenes.constraint.scores | sort -k 2,2gr | awk '{ a += 1; if ($1 == "KMT2D") print $1,a; }'
-```
-You can also load this file into excel and sort to find the rank.
+What does the prediction from SpliceAI tell us about the functional impact of this variant? Can we say with confidence that this variant is not a LoF variant?
 
 
-(iv) Missense variants in the KMT2D gene have also been identified in individuals with Kabuki syndrome. We will use the simplified variant file to count the number of missense and silent (synonymous) variants in the KMT2D gene: 
+(iv) Missense variants in the KMT2D gene have also been found to be pathogenic for Kabuki syndrome. However, a significant fraction of individuals in the normal population are also carriers of missense variants in KMT2D. Polyphen2 and SIFT are two of the most widely used tools for prioritizing missense mutations. Polyphen2 categorizes missense mutations as 'probably damaging' (D), 'possibly damaging (P), and benign (B) while SIFT classifies them as 'deleterious' (D) and 'neutral' (N). The file 'KMT2D.Kabuki.missense_predictions.csv' contains 57 missense variants (from https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6488975/) identified in Kabuki syndrome individuals. Similarly, the file 'KMT2D.ExAc.missense_predictions.csv' has the ExAc missense variants. The Polyphen2 and SIFT predictions for each variant are included as separate columns in the two files.
+
+To evaluate the ability of these two methods to distinguish between pathogenic missense variants (found in Kabuki syndrome patients) and benign missense variants (found in the ExAc database), we will count the number of missense variants predicted to be benign/deleterious in the two datasets: 
 
 ```Shell
-grep -E "missense_variant" KMT2D.ExAc.simplified.csv | wc -l 
-grep -E "synonymous_variant" KMT2D.ExAc.simplified.csv | wc -l 
+python3.6 count_missense.py DATA/practical-1/KMT2D.Kabuki.missense_predictions.csv
+python3.6 count_missense.py DATA/practical-1/KMT2D.ExAc.missense_predictions.csv
+``` 
+
+(v) We will use Fisher's exact test to determine if the computational classification of missense variants by SIFT can predict the pathogenicity of these variants. For this, we will tabulate the counts for SIFT in a 2x2 table ([[a,b],[c,d]]) and use the fisher_exact function from Python scipy.stats:
+
+```
+python3.6
+>>> from scipy.stats import fisher_exact
+>>> fisher_exact([[a,b],[c,d]])
 ```
 
-What is the ratio of the number of missense variants and the number of synonymous variants? Exon 38 has been observed to be enriched in disease-causing mutations in this gene. Therefore, we would expect to see a lower than expected number of missense variants in the normal population in this exon relative to synonymous variants. To check this, let us calculate the number of missense and synonymous variants in Exon 38: 
-
-
-```Shell
-grep -E "missense_variant" KMT2D.ExAc.simplified.csv | awk '{ if ($8 ==  "38/54") print; }' | wc -l 
-grep -E "synonymous_variant" KMT2D.ExAc.simplified.csv | awk '{ if ($8 ==  "38/54") print; }' | wc -l 
-```
-
-Is the missense_variant:synonymous_variant ratio for Exon 38 smaller than that for the entire gene? Is the difference statistically significant?
-
-This type of analysis can be used to prioritize specific regions of genes that are depleted of missense variants in normal individuals and are likely to harbor disease-causing mutations. For more details, you can read this paper: https://www.biorxiv.org/content/10.1101/148353v1
+The fisher_exact function returns two values: (i) the odds ratio and (ii) p-value (two-tailed probability of the odds-ratio being different than 1). Is the p-value significant? What is the interpretation of the odds ratio? 
 
 
 ## 2. Prioritizing disease genes using gene expression data 
@@ -70,7 +64,7 @@ The first line of this file gives information about the tissues/cell-lines and e
 (i) Extract the gene expression values for KMT2D from the data:
 
 ```Shell
-grep KMT2D DATA/practical-2/GTEx_Analysis_v6p_RNA-seq_RNA-SeQCv1.1.8_gene_median_rpkm.gct
+grep -w KMT2D DATA/practical-2/GTEx_Analysis_v6p_RNA-seq_RNA-SeQCv1.1.8_gene_median_rpkm.gct
 ```
 KMT2D is expressed at a high level across virtually all tissues which is consistent with the multi-organ phenotype associated with Kabuki syndrome. A visual plot of the RPKM values can be seen at http://gtexportal.org/home/gene/KMT2D or [here](DATA/practical-2/kmt2d_exp.png)
 
@@ -78,23 +72,16 @@ KMT2D is expressed at a high level across virtually all tissues which is consist
 (ii) Compare the expression pattern for KMT2D to a gene RFX6 (discussed in Tuesday's lecture) which is expressed in a few tissues (stomach, pancreas, adrenal glands): http://gtexportal.org/home/gene/RFX6 or [here](DATA/practical-2/RFX6-expression.png)
 
 ```Shell
-grep RFX6 DATA/practical-2/GTEx_Analysis_v6p_RNA-seq_RNA-SeQCv1.1.8_gene_median_rpkm.gct 
+grep -w RFX6 DATA/practical-2/GTEx_Analysis_v6p_RNA-seq_RNA-SeQCv1.1.8_gene_median_rpkm.gct 
 ```
 
-(iii) MLL2/KMT2D is the primary gene that is mutated in Kabuki syndrome (discussed in lecture). KDM6A is another gene that has been implicated in Kabuki syndrome. This suggests that the genes should have a similar expression profile. We will calculate the correlation between the expression profiles of KMT2D and KDM6A using the scipy.stats.spearmanr function:
+(iii) MLL2/KMT2D is the primary gene that is mutated in Kabuki syndrome (discussed in lecture). KDM6A is another gene that has been implicated in Kabuki syndrome (5-10% of individuals). This suggests that the genes should have a similar expression profile. We will calculate the correlation between the expression profiles of KMT2D and KDM6A using the scipy.stats.spearmanr function:
 
 ```Shell
 python3.6 corr.py KMT2D KDM6A
 ```
 
 The correlation between the expression values of the two genes is high. This is also apparent from visual inspection of plots for the two genes: http://gtexportal.org/home/gene/KMT2D and http://gtexportal.org/home/gene/KDM6A 
-
-
-(iv) Next, we will use correlation analysis to find genes that have a very similar (corr. coefficient > 0.9) expression profile to KMT2D.
-
-```Shell
-python3.6 corr.py KMT2D all > KMT2D.highcorrgenes
-```
 
 
 
@@ -138,17 +125,17 @@ Is there a gene that is known to cause an eye-related phenotype?
 
 ## Homework exercises
 
-1. Find the three top-ranking (ranked by correlation coefficient) genes whose expression is highly correlated with the expression profile of KMT2D. Are these genes also constrained against LoF mutations? Use OMIM to determine if these genes have also been linked to rare diseases.
+1. In class, we analyzed the predictions from the SIFT tool for missense variants. Perform the same analysis for the PolyPhen2 predictions. For this, you can group the 'probably damaging' (D) and 'possibly damaging (P) predictions into a single category. Which method (SIFT or Polyphen2) has a lower p-value? What can we infer about the predictive ability of these methods for classifying missense variants in the KMT2D gene? 
+
 
 ---
 
 2. It is known that certain genes are expressed at very low levels in a specific cell type despite being expressed at a high level across almost all other cell types. Aberrant expression of genes in the "disallowed" cell type can result in disease phenotype(s). The file "disallowed.genes" contains a list of 20 genes that are known to be disallowed in pancreatic beta-cells. Use the GTEX RNA-seq expression data (used in class) to compare the expression of these genes in the tissue "pancreas" with the expression in other tissues. For each gene, calculate the ratio of the expression level in pancreas to the mean expression level in all other cell-types. For how many genes is this ratio less than 0.1? Use the OMIM database (https://www.omim.org) to determine if mutations in any of these genes are known to cause human disease that is related to the pancreas.
 
-#Can a LoF mutation result in aberrant gene expression?
 
 ---
 
-3. For the third practical exercise ("Variant filtering"), we used the population allele frequencies from ExAc to filter out common variants. Population allele frequencies for some variants can vary across populations, particularly for rare variants. The input file contains allele frequencies for each variant in two populations (European: column 13 and South Asian: column 14). The individuals sequenced in this study are from South Asia. Determine the number of candidate disease variants obtained by filtering using the allele frequency for each of the two population separately (use an allele frequency threshold of 0.001). Which population results in a lower number of candidate variants? Is this consistent with the ancestry of the individuals?
+3. In the third practical exercise ("Variant filtering"), we used the population allele frequencies from ExAc to filter out common variants. Population allele frequencies for some variants can vary across populations, particularly for rare variants. The input file contains allele frequencies for each variant in two populations (European: column 13 and South Asian: column 14). The individuals sequenced in this study are from South Asia. Determine the number of candidate disease variants obtained by filtering using the allele frequency for each of the two population separately (use an allele frequency threshold of 0.001). Which population results in a lower number of candidate variants? Is this consistent with the ancestry of the individuals? Explain.
 
 
 
