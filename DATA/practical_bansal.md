@@ -1,5 +1,5 @@
 **[MED 263: Searching for disease mutations using DNA sequence data and
-bioinformatics]{.underline}**
+bioinformatics]**
 
 **Download all data files needed for this practical from**
 
@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 **[1. Analysis of gene-specific variants using computational
-tools]{.underline}**
+tools]**
 
 Loss-of-function (LoF) mutations in genes are expected to have a strong
 impact on gene function. In the lecture, we learned that LoF mutations
