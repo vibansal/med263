@@ -1,9 +1,7 @@
 **MED 263: Searching for disease mutations using DNA sequence data and
 bioinformatics**
 
-**Download all data files needed for this practical from**
-
-[**https://github.com/vibansal/med263/raw/master/DATA/DATAFILES.zip**]()
+**Download all data files needed for this practical from [here](https://github.com/vibansal/med263/raw/master/DATA/DATAFILES.zip)**
 
 The same files will also be needed for doing the homework exercises.
 
