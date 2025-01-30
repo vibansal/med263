@@ -188,6 +188,16 @@ import subprocess
 for gene in genes: subprocess.call(\'grep -w \' + gene +
 \'omim.genes.disease\',shell=True)
 
+```
+omim = pd.read_csv('omim.genes.disease',sep='|',header=None)
+disease_table = {}
+for row in omim.itertuples(index=False): 
+    for name in row[0].split(','): disease_table[name] = row[1]
+for gene in genes: 
+    if gene in disease_table: print(gene,disease_table[gene])
+
+```
+
 Is there a gene that is known to cause an eye-related phenotype?
 
 **3. Using gene expression data for analyzing disease
