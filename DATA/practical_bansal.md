@@ -219,22 +219,19 @@ information for an individual transcript.
 We will first a few transformations to the datafile to convert into a
 tissue x gene matrix and load it into a dataframe:
 
-df =
-pd.read\_csv(\'GTEx\_Analysis\_v6p\_RNA-seq\_RNA-SeQCv1.1.8\_gene\_median\_rpkm.gct\',sep=\'\\t\')
-
+```
+df = pd.read\_csv(\'GTEx\_Analysis\_v6p\_RNA-seq\_RNA-SeQCv1.1.8\_gene\_median\_rpkm.gct\',sep=\'\\t\')
 df1=df.T
-
 df1.to\_csv(\'expression.matrix\',sep=\'\\t\',header=None)
-
-df =
-pd.read\_csv(\'expression.matrix\',sep=\'\\t\',header=1,index\_col=0)
+df = pd.read\_csv(\'expression.matrix\',sep=\'\\t\',header=1,index\_col=0)
+```
 
 \(i\) Plot the gene expression values for KMT2D from the data:
 
+```
 df\[\'KMT2D\'\].plot(kind=\'bar\')
-
 plt.show()
-
+```
 As we saw in class, KMT2D is expressed at a high level across virtually
 all tissues which is consistent with the multi-organ phenotype
 associated with Kabuki syndrome.
