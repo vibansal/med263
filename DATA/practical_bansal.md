@@ -1,5 +1,5 @@
-**[MED 263: Searching for disease mutations using DNA sequence data and
-bioinformatics]**
+**MED 263: Searching for disease mutations using DNA sequence data and
+bioinformatics**
 
 **Download all data files needed for this practical from**
 
@@ -16,8 +16,8 @@ import matplotlib.pyplot as plt
 
 import seaborn as sns
 
-**[1. Analysis of gene-specific variants using computational
-tools]**
+**1. Analysis of gene-specific variants using computational
+tools**
 
 Loss-of-function (LoF) mutations in genes are expected to have a strong
 impact on gene function. In the lecture, we learned that LoF mutations
@@ -102,8 +102,8 @@ odds ratio?
 \(vi\) We will do the same analysis using Polyphen2 predictions and
 compare with the SIFT results.
 
-**[2. Variant filtering in multiple related individuals (rare
-disease)]{.underline}**
+**2. Variant filtering in multiple related individuals (rare
+disease)**
 
 In the lecture, we talked about how DNA sequencing of related
 individuals can be used to find the genetic cause of rare diseases that
@@ -192,8 +192,8 @@ for gene in genes: subprocess.call(\'grep -w \' + gene +
 
 Is there a gene that is known to cause an eye-related phenotype?
 
-**[3. Using gene expression data for analyzing disease
-genes]{.underline}**
+**3. Using gene expression data for analyzing disease
+genes**
 
 Gene expression information can be used to prioritize genes for
 association with disease. The GTEx project (http://gtexportal.org/home/)
