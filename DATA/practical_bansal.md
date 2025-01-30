@@ -183,10 +183,9 @@ and phenotypes. The file \"omim.genes.disease\" contains human genes and
 the corresponding phenotypes associated with them. We can search for
 each candidate gene in this table:
 
-import subprocess
+~import subprocess~
 
-for gene in genes: subprocess.call(\'grep -w \' + gene +
-\'omim.genes.disease\',shell=True)
+~for gene in genes: subprocess.call(\'grep -w \' + gene + \'omim.genes.disease\',shell=True)~
 
 ```
 omim = pd.read_csv('omim.genes.disease',sep='|',header=None)
